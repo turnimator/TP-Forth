@@ -26,7 +26,8 @@ p_code_p program_loop(program_p progp, int (*func)(p_code_p, void *),
 }
 
 
-static int program_dump_cb(p_code_p pcp, void *vp) {
+int program_dump_cb(p_code_p pcp, void *vp)
+{
   var_p v;
   switch (pcp->type) {
   case PCODE_NUMBER:

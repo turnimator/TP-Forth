@@ -14,6 +14,7 @@
 #include "p_code.h"
 #include "program.h"
 #include "task.h"
+extern int STEP;
 
 typedef int (*exec_func)(p_code_p, ftask_p, int);
 
@@ -132,7 +133,7 @@ static exec_func farray[] = {ef_error,      ef_primitive,  ef_number,
                              ef_variable,   ef_dict_entry, ef_if,
                              ef_do, ef_loop_end};
 
-static inline int p_code_exec_direct(p_code_p pcp, ftask_p task, int pcnt) {
+static inline int p_code_exec_direct_cb(p_code_p pcp, ftask_p task, int pcnt) {
   char buf[128];
   sprintf(buf, "%d %s%d", pcnt, pcp->name, pcp->type);
   logg("EXEC", buf);
@@ -143,6 +144,14 @@ static inline int p_code_exec_direct(p_code_p pcp, ftask_p task, int pcnt) {
   if (!pcp->name) {
     printf("\nEXEC: NULL p_code->name!");
     return pcnt + 1;
+  }
+  if (STEP){
+	d_stack_dump(task);
+	program_dump_cb(pcp, task);
+	printf("\n...");
+	if (getchar()=='x'){
+		STEP = 0;
+	}
   }
   return farray[pcp->type](pcp, task, pcnt);
 }
@@ -159,7 +168,7 @@ static int exec_loop(program_p progp, exec_func func, ftask_p vp) {
 void run_prog(ftask_p task, program_p prog) {
   // printf("\nRUNNING:\n");
   // program_dump(prog);
-  exec_loop(prog, p_code_exec_direct, task);
+  exec_loop(prog, p_code_exec_direct_cb, task);
 }
 
 void run_task(ftask_p task) { run_prog(task, task->program); }

@@ -26,4 +26,6 @@ p_code_p program_loop(program_p progp, int (*func)(p_code_p, void *), void *vp);
 void program_dump(program_p prog);
 long program_last(program_p);
 void program_set_if_end_marker(program_p, p_code_p);
+int program_dump_cb(p_code_p pcp, void *vp); // for stepping
+void d_stack_dump(ftask_p task); //
 #endif /* PROGRAM_H_ */

@@ -19,6 +19,8 @@
 builtin_p *DB_builtins;
 int N_builtins = 0;
 
+int STEP = 0;
+
 idx_builtin_t *IDX_builtins = 0;
 
 static void bdb_create() {
@@ -99,6 +101,17 @@ static inline void d_gt(ftask_p task) {
   d_push(task, (l2 > l1) ? 0 : 1);
 }
 
+static inline void d_step(ftask_p task)
+{
+	int l1 = d_pop(task);
+	if (l1==0){
+		STEP = 1;
+		printf("\nPress x to exit stepping ...");
+	} else {
+		STEP = 0;
+	}
+}
+
 static inline void d_lt(ftask_p task) {
   long l1 = d_pop(task);
   long l2 = d_pop(task);
@@ -116,7 +129,7 @@ static inline void d_true(ftask_p task) { d_push(task, 0); }
 static inline void d_false(ftask_p task) { d_push(task, 1); }
 
 void d_dup(ftask_p task) {
-  task->d_stack[task->d_top + 1] = task->d_stack[task->d_top];
+  task->d_stack[task->d_top] = task->d_stack[task->d_top-1];
   task->d_top++;
 }
 
@@ -221,7 +234,8 @@ static void s_dot(ftask_p task) {
 
 static void p_program_dump(ftask_p task) { program_dump(task->program); }
 
-static void d_stack_dump(ftask_p task) {
+void d_stack_dump(ftask_p task) 
+{
   printf("\n[");
   for (int i = 0; i < task->d_top; i++) {
     printf(" %ld", task->d_stack[i]);
@@ -325,12 +339,13 @@ void builtin_build_db() {
   builtin_add("*", d_mul);
   builtin_add("%", d_modulo);
   builtin_add("/", d_div);
-  builtin_add("true", d_true);
-  builtin_add("false", d_false);
+  builtin_add("TRUE", d_true);
+  builtin_add("FALSE", d_false);
   builtin_add("pdump", p_program_dump);
   builtin_add("I", d_i);
   builtin_add("!", d_store_val);
   builtin_add("@", d_load_val);
+  builtin_add("STEP", d_step);
   add_custom_builtins();
   builtin_db_dump();
   index_names();

@@ -72,8 +72,20 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       printf("DEF:%s ", pcp->name);
       program_dump(pcp->val.prog);
       break;
+      case PCODE_DO:
+      printf("LOOP:%s ", pcp->name);
+      break;
+      case PCODE_LOOP:
+      printf("LOOP:%s ", pcp->name);
+      break;
+      case PCODE_IF:
+      printf("COND:%s ", pcp->name);
+      break;
+      case PCODE_ERROR:
+      printf("ERR:%s ", pcp->name);
+      break;
     default:
-      printf(" *** ERROR*** ");
+      printf("PCODE%d? ", pcp->type);
       break;
     }
   }
