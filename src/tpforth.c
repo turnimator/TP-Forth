@@ -37,7 +37,7 @@ char* read_file(char* filename)
 
 
 int main(int ac, char*av[]) {
-	puts("FINF (a.k.a. FINFIAFLI) is Not Forth\n (It's A Forth Language Interpreter)\n");
+	puts("TP-FORTH - A Forth Language P-CODE Interpreter)\n");
 	
 	char buf[256];
 	dict_init();

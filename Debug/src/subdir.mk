@@ -8,13 +8,13 @@ C_SRCS += \
 ../src/compiler.c \
 ../src/custom.c \
 ../src/dictionary.c \
-../src/finf.c \
 ../src/logg.c \
 ../src/p_code.c \
 ../src/parser.c \
 ../src/program.c \
 ../src/runtime.c \
 ../src/task.c \
+../src/tpforth.c \
 ../src/variable.c 
 
 C_DEPS += \
@@ -22,13 +22,13 @@ C_DEPS += \
 ./src/compiler.d \
 ./src/custom.d \
 ./src/dictionary.d \
-./src/finf.d \
 ./src/logg.d \
 ./src/p_code.d \
 ./src/parser.d \
 ./src/program.d \
 ./src/runtime.d \
 ./src/task.d \
+./src/tpforth.d \
 ./src/variable.d 
 
 OBJS += \
@@ -36,13 +36,13 @@ OBJS += \
 ./src/compiler.o \
 ./src/custom.o \
 ./src/dictionary.o \
-./src/finf.o \
 ./src/logg.o \
 ./src/p_code.o \
 ./src/parser.o \
 ./src/program.o \
 ./src/runtime.o \
 ./src/task.o \
+./src/tpforth.o \
 ./src/variable.o 
 
 
@@ -58,7 +58,7 @@ src/%.o: ../src/%.c src/subdir.mk
 clean: clean-src
 
 clean-src:
-	-$(RM) ./src/builtins.d ./src/builtins.o ./src/compiler.d ./src/compiler.o ./src/custom.d ./src/custom.o ./src/dictionary.d ./src/dictionary.o ./src/finf.d ./src/finf.o ./src/logg.d ./src/logg.o ./src/p_code.d ./src/p_code.o ./src/parser.d ./src/parser.o ./src/program.d ./src/program.o ./src/runtime.d ./src/runtime.o ./src/task.d ./src/task.o ./src/variable.d ./src/variable.o
+	-$(RM) ./src/builtins.d ./src/builtins.o ./src/compiler.d ./src/compiler.o ./src/custom.d ./src/custom.o ./src/dictionary.d ./src/dictionary.o ./src/logg.d ./src/logg.o ./src/p_code.d ./src/p_code.o ./src/parser.d ./src/parser.o ./src/program.d ./src/program.o ./src/runtime.d ./src/runtime.o ./src/task.d ./src/task.o ./src/tpforth.d ./src/tpforth.o ./src/variable.d ./src/variable.o
 
 .PHONY: clean-src
 
