@@ -1,0 +1,8 @@
+
+VARIABLE Max
+1000000 Max !
+10 0 DO 
+	I  . CR
+LOOP
+
+
