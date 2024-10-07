@@ -336,6 +336,7 @@ void builtin_build_db() {
   builtin_add("=", d_eq);
   builtin_add("*", d_mul);
   builtin_add("mod", d_modulo);
+  builtin_add("%", d_modulo);
   builtin_add("/", d_div);
   builtin_add("TRUE", d_true);
   builtin_add("FALSE", d_false);
