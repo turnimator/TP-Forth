@@ -78,10 +78,19 @@ p_code_p p_code_create_variable(int idx)
 	return rv;
 }
 
+p_code_p p_code_create_I()
+{
+	p_code_p rv = p_code_create_empty("I");
+	rv->type = PCODE_I;
+	return rv;
+}
 /**
 Parse a word, creating a p-code
 */
 p_code_p p_code_parse_word(char *src) {
+	if(strcmp(src, "I")==0){
+		return p_code_create_I();
+	}
   if (isNumber(src)) {
     return p_code_create_long(atol(src));
   }

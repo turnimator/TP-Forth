@@ -25,8 +25,9 @@ typedef enum p_code_type {
   PCODE_VARIABLE = 3,
   PCODE_DICT_ENTRY = 4,
   PCODE_IF = 5,
-  PCODE_DO = 6,
-  PCODE_LOOP = 7,
+  PCODE_LOOP_DO = 6,
+  PCODE_LOOP_END = 7,
+  PCODE_I = 8,
   PCODE_LAST
 
 } p_code_type_t;

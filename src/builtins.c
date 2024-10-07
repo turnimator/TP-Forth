@@ -163,7 +163,7 @@ static void d_div(ftask_p task) {
   d_push(task, l2 / l1);
 }
 
-static void d_i(ftask_p task) { d_push(task, d_pick(task, 0)); }
+static void d_i(ftask_p task) {  }
 
 static void d_dot(ftask_p task) {
   if (task->d_top < 0) {
@@ -231,8 +231,6 @@ static void s_dot(ftask_p task) {
   var_p v = variable_get(idx);
   printf("%s %ld", v->name, v->val.l);
 }
-
-static void p_program_dump(ftask_p task) { program_dump(task->program); }
 
 void d_stack_dump(ftask_p task) 
 {
@@ -337,11 +335,10 @@ void builtin_build_db() {
   builtin_add("<", d_lt);
   builtin_add("=", d_eq);
   builtin_add("*", d_mul);
-  builtin_add("%", d_modulo);
+  builtin_add("mod", d_modulo);
   builtin_add("/", d_div);
   builtin_add("TRUE", d_true);
   builtin_add("FALSE", d_false);
-  builtin_add("pdump", p_program_dump);
   builtin_add("I", d_i);
   builtin_add("!", d_store_val);
   builtin_add("@", d_load_val);

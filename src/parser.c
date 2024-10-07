@@ -62,7 +62,7 @@ static void then_create(program_p prog, p_code_p cond) {
 
 static void do_create(program_p prog) {
   ct_push(CT_DO, current_loop); // Must be popped on LOOP
-  current_loop = p_code_ct_create(PCODE_DO);
+  current_loop = p_code_ct_create(PCODE_LOOP_DO);
   current_loop->val.l = program_last(prog); // This is for LOOP to know where to jump back to
   program_add_p_code(prog, current_loop);
 }
@@ -70,10 +70,10 @@ static void do_create(program_p prog) {
 static void loop_create(program_p prog) {
   logg(prog->name, "ENTER");
   p_code_p loop_code;
-  loop_code = p_code_ct_create(PCODE_LOOP);
+  loop_code = p_code_ct_create(PCODE_LOOP_END);
   loop_code->val.l = current_loop->val.l;
   current_loop->val.l = program_last(prog) + 1;
-  program_dump(prog);
+  program_dump(prog, 0);
   program_add_p_code(prog, loop_code);
   current_loop = ct_pop(CT_DO);
 }

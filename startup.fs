@@ -1,17 +1,7 @@
 
-VARIABLE isprime
-VARIABLE current
 
-isprime TRUE !
+: tl
+ 10 0 DO I .  I . LOOP ;
 
-: testprime
-	.s
-	dup 
-	current !
-	current @ .
-	.s
-	0 DO
-		current @ . CR I . 
-	LOOP
-	;
+tl
 	  

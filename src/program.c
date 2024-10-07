@@ -15,10 +15,10 @@
 /**
 Loop through the program, calling func for each p-code
 */
-p_code_p program_loop(program_p progp, int (*func)(p_code_p, void *),
-                      void *vp) {
+p_code_p program_loop(program_p progp, int (*func)(p_code_p, int pcn),
+                      int pcn) {
   for (int i = 0; i < progp->npcp_array; i++) {
-    if (func(progp->pcp_array[i], vp)) {
+    if (func(progp->pcp_array[i], pcn==i?1:0)) {
       return progp->pcp_array[i];
     }
   }
@@ -26,9 +26,12 @@ p_code_p program_loop(program_p progp, int (*func)(p_code_p, void *),
 }
 
 
-int program_dump_cb(p_code_p pcp, void *vp)
+int program_dump_cb(p_code_p pcp, int here)
 {
   var_p v;
+  if (here){
+	printf(" >");
+  }
   switch (pcp->type) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
@@ -38,21 +41,25 @@ int program_dump_cb(p_code_p pcp, void *vp)
     return 0;
   case PCODE_VARIABLE:
     v = variable_get(pcp->val.var_idx);
-    printf("VAR:(%s=%s)", pcp->name, vartype_string(v));
+    printf("VAR:(%s=%s) ", pcp->name, vartype_string(v));
     return 0;
   case PCODE_DICT_ENTRY:
     printf("DEF:%s ", pcp->name);
-    program_dump(pcp->val.prog);
+    program_dump(pcp->val.prog, here);
     return 0;
   case PCODE_IF:
     printf("IF:%s ", pcp->name);
     return 0;
-  case PCODE_DO:
+  case PCODE_LOOP_DO:
     printf("DO:%s ", pcp->name);
     return 0;
-  case PCODE_LOOP:
+  case PCODE_LOOP_END:
     printf("LOOP:%s ", pcp->name);
     return 0;
+    case PCODE_I:
+    printf("I:%s ", pcp->name);
+    return 0;
+    break;
   default:
     printf("?");
     return 0;
@@ -62,13 +69,13 @@ int program_dump_cb(p_code_p pcp, void *vp)
   return 1;
 }
 
-void program_dump(program_p progp) {
+void program_dump(program_p progp, int pcn) {
   printf("\n----------------| %s |-----------------\n", progp->name);
-  program_loop(progp, program_dump_cb, 0);
+  program_loop(progp, program_dump_cb, pcn);
   printf("\n----------------------------------------\n\n");
 }
 
-static int program_delete_cb(p_code_p pcp, void *vp) {
+static int program_delete_cb(p_code_p pcp, int pcn) {
   p_code_delete(pcp);
   return 0;
 }
