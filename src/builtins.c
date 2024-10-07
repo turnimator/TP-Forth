@@ -328,7 +328,7 @@ void builtin_build_db() {
   builtin_add("+", d_plus);
   builtin_add("-", d_minus);
   builtin_add(".", d_dot);
-  builtin_add("cr", d_cr);
+  builtin_add("CR", d_cr);
   builtin_add("s.", s_dot);
   builtin_add(".s", d_stack_dump);
   builtin_add(">", d_gt);

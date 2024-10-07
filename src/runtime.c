@@ -124,10 +124,10 @@ static inline int ef_do(program_p progp, ftask_p task, int pcnt)
 	// what we want is to
 	// RUN THE ENTIRE LOOP BLOCK (l2-l1) times 
 	//
-  	for(int i = 0; i <= (l2-l1);i++){
+  	for(int i = 0; i < (l2-l1);i++){
 		//printf("\nLoppcnt: %d pcnt:%d", i, pcnt);
 		//program_dump(progp, pcnt);
-		run_block(progp, task, pcnt, i);
+		run_block(progp, task, pcnt, i+l1);
 	}
 	return eol + 1;
 }
@@ -183,8 +183,8 @@ static int program_exec_loop(program_p progp, exec_func func, ftask_p vp) {
 }
 
 void run_prog(ftask_p task, program_p prog) {
-  printf("\nRUNNING:\n");
-  program_dump(prog, 0);
+  //printf("\nRUNNING:\n");
+  //program_dump(prog, 0);
   //// task->program = prog; FORBIDDEN! /////
   program_exec_loop(prog, program_exec_word_no, task);
 }

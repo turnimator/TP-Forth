@@ -95,12 +95,14 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
   printf("\n");
   return 0;
 }
+
 void dict_dump(dict_p dp) {
   if (!dp) {
     dp = Default_dict;
   }
+  int i = 0;
   printf("\n---------------| DICT |--------------\n");
-  dict_loop(dp, cb_dict_dump, 0);
+  dict_loop(dp, cb_dict_dump, &i);
   printf("\n------------------------------------\n");
 }
 
@@ -108,7 +110,7 @@ void dict_add_entry(dict_p dp, dict_entry_p dep) {
   if (!dp) {
     dp = Default_dict;
   }
-  dict_dump(dp);
+  
   dict_entry_p dep_exist = dict_lookup(dp, dep->name);
   if (dep_exist) {
     dep_exist = dep;
