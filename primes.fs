@@ -4,8 +4,7 @@ VARIABLE prime_flag
 
 : checkprime 
 	1 prime_flag !
-	mynum @ 2 DO mynum @ I mod 0 = IF 0 prime_flag ! THEN  
-	LOOP
+	mynum @ 2 DO mynum @ I mod 0 = IF 0 prime_flag ! LOOP THEN  
  ;
  
  : primes 2 DO
@@ -15,5 +14,5 @@ VARIABLE prime_flag
    LOOP
    ;
  
- 10000 primes
+ 10 0 DO TRUE IF I ELSE LOOP THEN
  

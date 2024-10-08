@@ -19,13 +19,14 @@ typedef struct ctstack {
 
 typedef enum ct_stack_idx {
 	CT_IF,
+	CT_ELSE,
 	CT_DO,
 	CT_LOOP
 } ct_stack_idx_t;
 
 
 typedef struct compiletime_stack_array {
-	ctstack_t ct[3]; 
+	ctstack_t ct[5]; 
 } ct_t;
 
 

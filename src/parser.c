@@ -20,8 +20,15 @@
 #include "task.h"
 #include "variable.h"
 
-p_code_p current_cond;          // Current conditional
-p_code_p current_loop; // Current DO
+//IF ELSE THEN  
+// IF set FALSE JUMP address to 0
+// ELSE set FALSE JUMP address to HERE+1
+// THEN if FALSE JUMP address is 0, set FALSE JUMP address to HERE+1
+
+p_code_p current_IF;          // Current conditional
+p_code_p current_ELSE;
+
+p_code_p current_DO; // Current DO
 
 static dict_entry_p de = 0; // Current colon definition
 
@@ -49,33 +56,69 @@ int isForthCommentEnd(char *tok) {
   return 0;
 }
 
+/**
+* IF TRUE, fall though. When encountering ELSE skip to THEN
+* IF FALSE skip to ELSE+1 (thereby executing ELSE code) or THEN+1
+*/
 static void if_create(program_p prog) {
-  ct_push(CT_IF, current_cond); // In case of a nested IF, tuck away the old
-  current_cond = p_code_ct_create(PCODE_IF); // and enter the new
-  program_add_p_code(prog, current_cond);
+  ct_push(CT_IF, current_IF); // In case of a nested IF, tuck away the old
+  current_IF = p_code_ct_create(PCODE_IF); // and enter the new
+  current_IF->val.l = 0;
+  program_add_p_code(prog, current_IF);
 }
 
+static void else_create(program_p prog) {
+  current_IF->val.l = program_last(prog) + 1; // Make IF FALSE point here
+  ct_push(CT_IF, current_IF);
+  current_IF = p_code_ct_create(PCODE_ELSE); // 
+	current_IF->val.l = 0;
+  program_add_p_code(prog, current_IF);
+}
+
+
+/**
+Look at the compile time stack.
+If the current is ELSE, we must ct_pop and fixup before handling THEN.
+**/
 static void then_create(program_p prog, p_code_p cond) {
-  program_set_if_end_marker(prog, cond);
+	if (current_IF->type==PCODE_ELSE){
+		current_IF->val.l = program_last(prog) + 1;
+		current_IF = ct_pop(CT_IF);
+	}
+  if (current_IF->val.l == 0){
+	current_IF->val.l = program_last(prog) + 1;
+  }
+  p_code_p pcode = p_code_ct_create(PCODE_THEN); // 
+  pcode->val.l = program_last(prog) + 1;
+  program_add_p_code(prog, pcode);
   cond = ct_pop(CT_IF);
 }
 
+/**
+	runtime.c:
+	DO: pop the two loop variables l1, l2.
+	execute code between DO and LOOP l2-l1 times.
+	while l1 < l2, fall through from here
+	when l1=l2, jump to LOOP + 1 (contained on DO P-CODE)
+	
+	LOOP: jump to DO + 1 (contained in LOOP P-CODE)
+	
+**/
 static void do_create(program_p prog) {
-  ct_push(CT_DO, current_loop); // Must be popped on LOOP
-  current_loop = p_code_ct_create(PCODE_LOOP_DO);
-  current_loop->val.l = program_last(prog); // This is for LOOP to know where to jump back to
-  program_add_p_code(prog, current_loop);
+  ct_push(CT_DO, current_DO); // Must be popped on LOOP
+  current_DO = p_code_ct_create(PCODE_LOOP_DO);
+  current_DO->val.l = program_last(prog);
+  program_add_p_code(prog, current_DO);
 }
 
 static void loop_create(program_p prog) {
   logg(prog->name, "ENTER");
   p_code_p loop_code;
   loop_code = p_code_ct_create(PCODE_LOOP_END);
-  loop_code->val.l = current_loop->val.l;
-  current_loop->val.l = program_last(prog) + 1;
-  program_dump(prog, 0);
+  loop_code->val.l = current_DO->val.l+1; // Know wehere we must LOOP back to
+  current_DO->val.l = program_last(prog) + 2; // Show DO where to skip LOOP
   program_add_p_code(prog, loop_code);
-  current_loop = ct_pop(CT_DO);
+  current_DO = ct_pop(CT_DO);
 }
 
 static int parse_variable(program_p prog, char *name) {
@@ -102,7 +145,7 @@ parser_state_t parse_word(program_p prog, char *tok)
     return IF_EXPECTING_ELSE_OR_THEN;
   }
   if (strcmp(tok, "THEN") == 0) {
-    then_create(prog, current_cond); // and get back the old one
+    then_create(prog, current_IF); // and get back the old one
     return EXPECTING_ANY;
   }
   if (strcmp(tok, "DO") == 0) {
@@ -113,14 +156,24 @@ parser_state_t parse_word(program_p prog, char *tok)
     loop_create(prog);
     return EXPECTING_ANY;
   }
-  if (strcmp(tok, ";") == 0) {
-    logg(";", "unexpected");
-    return EXPECTING_ANY;
-  }
   if (isForthCommentStart(tok)) {
     return PS_COMMENT;
   }
+  if (strcmp(tok, ";") == 0) {
+    logg(tok, "UNEXPECTED - NO DEFINITION");
+    return EXPECTING_ANY;
+  }
+	if (strcmp(tok, "ELSE") == 0) {
+    logg(tok, "UNEXPECTED - NO IF");
+    return EXPECTING_ANY;
+  }
+	if (strcmp(tok, "THEN") == 0) {
+    logg(tok, "UNEXPECTED - NO IF");
+    return EXPECTING_ANY;
+  }
+
   program_add(prog, tok);
+  
   return EXPECTING_ANY;
 }
 
@@ -160,11 +213,11 @@ static parser_state_t parse_colon_definition(dict_entry_p de, char *tok) {
     return COLON_EXPECTING_SEMI_COLON;
   }
   if (strcmp(tok, "ELSE") == 0) {
-    current_cond->val.l = program_last(de->prog);
+    else_create(de->prog);
     return COLON_EXPECTING_SEMI_COLON;
   }
   if (strcmp(tok, "THEN") == 0) {
-    then_create(de->prog, current_cond);
+    then_create(de->prog, current_IF);
     return COLON_EXPECTING_SEMI_COLON;
   }
   dict_entry_add_word(de, tok);
@@ -175,23 +228,29 @@ static parser_state_t parse_if(program_p prog, p_code_p cp, char *tok) {
   logg("IF", tok);
 
   if (strcmp(tok, "ELSE") == 0) {
-    current_cond->val.l = program_last(prog);
+    else_create(prog);
     return ELSE_EXPECTING_THEN;
   }
   if (strcmp(tok, "THEN") == 0) {
-    then_create(prog, current_cond);
+    then_create(prog, current_IF);
     return EXPECTING_ANY;
   }
-  return parse_word(prog, tok);
+  parse_word(prog, tok);
+  return IF_EXPECTING_ELSE_OR_THEN;
 }
 
 static parser_state_t parse_else(program_p prog, p_code_p cp, char *tok) {
   logg("ELSE", tok);
   if (strcmp(tok, "THEN") == 0) {
-    then_create(prog, current_cond);
+    then_create(prog, current_IF);
     return EXPECTING_ANY;
   }
-  return parse_word(prog, tok);
+  if (strcmp(tok, "ELSE") == 0) {
+    else_create(prog);
+    return ELSE_EXPECTING_THEN;
+  }
+  parse_word(prog, tok);
+  return ELSE_EXPECTING_THEN;
 }
 
 static parser_state_t parse_do(program_p prog, p_code_p saved_do_code,
@@ -228,13 +287,13 @@ program_p parse(ftask_p task, char *source) {
       state = parse_colon_definition(de, tok);
       break;
     case IF_EXPECTING_ELSE_OR_THEN:
-      state = parse_if(prog, current_cond, tok);
+      state = parse_if(prog, current_IF, tok);
       break;
     case ELSE_EXPECTING_THEN:
-      state = parse_else(prog, current_cond, tok);
+      state = parse_else(prog, current_IF, tok);
       break;
     case DO_EXPECTING_LOOP:
-      state = parse_do(prog, current_loop, tok);
+      state = parse_do(prog, current_DO, tok);
       break;
     case PS_COMMENT:
       state = parse_comment(tok);

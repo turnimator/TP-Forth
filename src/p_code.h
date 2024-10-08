@@ -28,6 +28,8 @@ typedef enum p_code_type {
   PCODE_LOOP_DO = 6,
   PCODE_LOOP_END = 7,
   PCODE_I = 8,
+  PCODE_ELSE = 9,
+  PCODE_THEN =10,
   PCODE_LAST
 
 } p_code_type_t;

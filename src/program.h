@@ -25,7 +25,6 @@ void program_add_p_code(program_p prog, p_code_p pcp);
 p_code_p program_loop(program_p progp, int (*func)(p_code_p, int), int pcnum);
 void program_dump(program_p prog, int pcnum);
 long program_last(program_p);
-void program_set_if_end_marker(program_p, p_code_p);
 int program_dump_cb(p_code_p pcp, int pcnum); // for stepping
 void d_stack_dump(ftask_p task); //
 #endif /* PROGRAM_H_ */

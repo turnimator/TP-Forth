@@ -18,19 +18,17 @@ Loop through the program, calling func for each p-code
 p_code_p program_loop(program_p progp, int (*func)(p_code_p, int pcn),
                       int pcn) {
   for (int i = 0; i < progp->npcp_array; i++) {
-    if (func(progp->pcp_array[i], pcn==i?1:0)) {
+    if (func(progp->pcp_array[i], pcn == i ? 1 : 0)) {
       return progp->pcp_array[i];
     }
   }
   return 0;
 }
 
-
-int program_dump_cb(p_code_p pcp, int here)
-{
+int program_dump_cb(p_code_p pcp, int here) {
   var_p v;
-  if (here){
-	printf(" >");
+  if (here) {
+    printf(" >");
   }
   switch (pcp->type) {
   case PCODE_NUMBER:
@@ -48,15 +46,21 @@ int program_dump_cb(p_code_p pcp, int here)
     program_dump(pcp->val.prog, here);
     return 0;
   case PCODE_IF:
-    printf("IF:%s ", pcp->name);
+    printf("IF:%ld ", pcp->val.l);
+    return 0;
+  case PCODE_ELSE:
+    printf("ELSE:%ld ", pcp->val.l);
+    return 0;
+  case PCODE_THEN:
+    printf("THEN:%ld ", pcp->val.l);
     return 0;
   case PCODE_LOOP_DO:
-    printf("DO:%s ", pcp->name);
+    printf("DO:%ld ", pcp->val.l);
     return 0;
   case PCODE_LOOP_END:
-    printf("LOOP:%s ", pcp->name);
+    printf("LOOP:%ld ", pcp->val.l);
     return 0;
-    case PCODE_I:
+  case PCODE_I:
     printf("I:%s ", pcp->name);
     return 0;
     break;
@@ -109,10 +113,6 @@ void program_add_p_code(program_p prog, p_code_p pcp) {
 }
 
 long program_last(program_p prog) { return prog->npcp_array - 1; }
-
-void program_set_if_end_marker(program_p prog, p_code_p cond) {
-  cond->val.l = program_last(prog);
-}
 
 void program_add(program_p prog, char *src) {
   p_code_p pc = p_code_parse_word(src);
