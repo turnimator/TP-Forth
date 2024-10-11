@@ -31,22 +31,6 @@ program_p current_PROG;
 
 static dict_entry_p de = 0; // Current colon definition
 
-int isForthChar(char c) {
-  if (isalnum(c)) {
-    return 1;
-  }
-  if (strchr("`~!@#$%^&*()_-=<>?/[{]}\\|\",", c)) {
-    return 1;
-  }
-  return 0;
-}
-
-int isForthCommentEnd(char *tok) {
-  if (strcmp(tok, ")") == 0 || strcmp(tok, "\n") == 0) {
-    return 1;
-  }
-  return 0;
-}
 
 /**
  * IF TRUE, fall though. When encountering ELSE skip to THEN
@@ -178,23 +162,34 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
     current_PROG = ct_prog_pop();
     return EXPECTING_ANY;
   }
-  if (strcmp(tok, "(") == 0 || strcmp(tok, "\\") == 0) {
+  if (strcmp(tok, "(") == 0){
     return PS_COMMENT;
   }
-  if (isForthCommentEnd(tok)) {
-    return EXPECTING_ANY;
+  
+  if (strcmp(tok, "\\") == 0){
+    return BS_COMMENT;
   }
+  
   program_add(current_PROG, tok);
   return EXPECTING_ANY;
 }
 
-parser_state_t parse_comment(parser_state_t state, char *tok) {
+parser_state_t parse_ps_comment(parser_state_t state, char *tok) {
   logg("COMMENT", tok);
-  if (isForthCommentEnd(tok)) {
+  if (strcmp(tok,")")) {
     return EXPECTING_ANY;
   }
   return PS_COMMENT;
 }
+
+parser_state_t parse_bs_comment(parser_state_t state, char *tok) {
+  logg("COMMENT", tok);
+  if (strcmp(tok, "\n")==0) {
+    return EXPECTING_ANY;
+  }
+  return BS_COMMENT;
+}
+
 
 parser_state_t parse_colon(parser_state_t state, char *tok) {
   logg("COLON", tok);
@@ -237,21 +232,26 @@ typedef struct parse_table_entry {
 } ptentry_t, *ptentry_p;
 
 /*
-    COLON, 0
-    COLON_EXPECTING_NAME 1,
-    CREATE 2,
-    CREATE_EXPECTING_NAME 3,
-    VARIABLE 4,
-    VARIABLE_EXPECTING_NAME 5,
-    PS_COMMENT 6,
-    EXPECTING_ANY,
-    PS_ERROR
+    COLON = 0,
+    COLON_EXPECTING_NAME = 1,
+    CREATE = 2,
+    CREATE_EXPECTING_NAME =3,
+    VARIABLE = 4,
+    VARIABLE_EXPECTING_NAME = 5,
+    PS_COMMENT =6,
+    BS_COMMENT = 7,
+    EXPECTING_ANY = 8,
+    PS_ERROR = 9
 */
-static ptentry_t pftable[] = {
-    {":", strcmp, parse_colon},           {"", cmpany, parse_colon_name},
-    {"CREATE", strcmp, parse_variable},   {"", cmpany, parse_variable_name},
-    {"VARIABLE", strcmp, parse_variable}, {"", cmpany, parse_variable_name},
-    {"(\\", cmpcomment, parse_comment},   {"", cmpany, parse_word}};
+static ptentry_t pftable[] = {{":", strcmp, parse_colon},
+                              {"", cmpany, parse_colon_name},
+                              {"CREATE", strcmp, parse_variable},
+                              {"", cmpany, parse_variable_name},
+                              {"VARIABLE", strcmp, parse_variable},
+                              {"", cmpany, parse_variable_name},
+                              {"(", strcmp, parse_ps_comment},
+                              {"\\", strcmp, parse_ps_comment},
+                              {"", cmpany, parse_word}};
 
 /**
 

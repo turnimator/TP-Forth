@@ -20,26 +20,26 @@ typedef void (*cbp_exec_func)(program_p, ftask_p);
 static cbp_exec_func farray[];
 
 static void ef_error(program_p prog, ftask_p task) {
-  logg(task->pcp->name, "P-CODE ERROR");
-  task->pcp = program_last(prog);
+  logg(prog->pcp->name, "P-CODE ERROR");
+  prog->pcp = program_last(prog);
 }
 
 static inline void cb_ef_number(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   d_push(task, pcp->val.l);
-  task->pcp++;
+  prog->pcp++;
 }
 
 static inline void ef_primitive(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   DB_builtins[pcp->val.pp->op]->code(task);
-  task->pcp++;
+  prog->pcp++;
 }
 
 static inline void ef_variable(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   v_push(task, pcp->val.var_idx);
-  task->pcp++;
+  prog->pcp++;
 }
 
 /**
@@ -47,18 +47,18 @@ Look up the dictionary entry.
 If found, run its program.
 */
 static inline void ef_dict_entry(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   dict_entry_p sub = 0;
   sub = dict_lookup(0, pcp->name);
   if (!sub) {
     printf("\nEXEC: %s dict_lookup failed!", pcp->name);
-    task->pcp++;
+    prog->pcp++;
   }
-  p_code_p * saved = task->pcp;
-  task->pcp = sub->prog->pcp_array;
+  p_code_p * saved = prog->pcp;
+  prog->pcp = sub->prog->pcp_array;
   //program_dump(prog,task);
   run_prog(task, sub->prog);
-  task->pcp=saved+1;
+  prog->pcp=saved+1;
 }
 
 /**
@@ -74,7 +74,7 @@ static void cb_program_exec_word(program_p, ftask_p);
 
 static inline void ef_i_cb(program_p prog, ftask_p task) {
   d_push(task, task->loop_lower);
-  task->pcp++;
+  prog->pcp++;
 }
 
 
@@ -85,20 +85,20 @@ Dictionary entries have their own program
 static void ef_do_new(program_p prog, ftask_p task) {
   task->loop_lower = d_pop(task);
   task->loop_upper = d_pop(task);
-  task->pcp++;
+  prog->pcp++;
 }
 
 /**
 jump to code at DO
 */
 static inline void ef_loop_end(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   if (task->loop_lower++ >= task->loop_upper) {
-    task->pcp++;
+    prog->pcp++;
     return;
   }
   // printf("LOOP BACK TO %ld\n", pcp->val.l);
-  task->pcp = prog->pcp_array + pcp->val.l;
+  prog->pcp = prog->pcp_array + pcp->val.l;
 }
 
 /*
@@ -106,35 +106,35 @@ Check ToS, if TRUE, execute the code that follows.
 If FALSE, jump to code after ELSE or THEN (stored in pcp->val.l)
 */
 static inline void ef_if(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   if (d_pop(task) == 0) {
     // printf("IF CODE TRUE, FALL THROUGH\n");
-    task->pcp++;
+    prog->pcp++;
   } else {
     // printf("IF CODE FALSE, SKIP TO PAST ELSE OR THEN(%p)\n",
     // pcp->val.jump_to);
-    task->pcp = prog->pcp_array + pcp->val.l + 1;
+    prog->pcp = prog->pcp_array + pcp->val.l + 1;
   }
 }
 
-static inline void ef_else(program_p progp, ftask_p task) {
-  p_code_p pcp = *task->pcp;
+static inline void ef_else(program_p prog, ftask_p task) {
+  p_code_p pcp = *prog->pcp;
   // printf("ELSE CAUGHT IT, SKIP TO THEN\n");
-  task->pcp = progp->pcp_array + pcp->val.l;
+  prog->pcp = prog->pcp_array + pcp->val.l;
 }
 
-static inline void ef_then(program_p progp, ftask_p task) {
+static inline void ef_then(program_p prog, ftask_p task) {
   // printf("THEN CAUGHT IT, FALLING THROUG\n");
-  task->pcp++;
+  prog->pcp++;
 }
 
 static  void ef_exit(program_p prog, ftask_p task) {
-  task->pcp = prog->pcp_array + prog->npcp_array ;
+  prog->pcp = prog->pcp_array + prog->npcp_array ;
 }
 
 static inline void ef_last_code(program_p prog, ftask_p task) {
   printf("*** STOP RUN**\n");
-  task->pcp++;
+  prog->pcp++;
 }
 
 /*
@@ -160,9 +160,9 @@ static cbp_exec_func farray[] = {
 
 static void cb_program_exec_word(program_p prog, ftask_p task) 
 {
-  p_code_p pcp = *task->pcp;
+  p_code_p pcp = *prog->pcp;
   char buf[128];
-  sprintf(buf, "%p %s%d", task->pcp, prog->name, pcp->type);
+  sprintf(buf, "%p %s%d", prog->pcp, prog->name, pcp->type);
   logg("EXEC", buf);
 
   if (STEP) {
@@ -181,8 +181,8 @@ Loop through the program, calling func for each p-code
 */
 static int program_exec_loop(program_p prog, cbp_exec_func func,
                              ftask_p task) {
-  task->pcp = prog->pcp_array;
-  while (task->pcp < prog->pcp_array + prog->npcp_array) {
+  prog->pcp = prog->pcp_array;
+  while (prog->pcp < prog->pcp_array + prog->npcp_array) {
     func(prog, task);
   }
   return 0;

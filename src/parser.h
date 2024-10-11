@@ -16,15 +16,16 @@
 
 
 typedef enum parser_state {
-	COLON,
-    COLON_EXPECTING_NAME,
-    CREATE,
-    CREATE_EXPECTING_NAME,
-    VARIABLE,
-    VARIABLE_EXPECTING_NAME,
-    PS_COMMENT,
-    EXPECTING_ANY,
-    PS_ERROR
+	COLON = 0,
+    COLON_EXPECTING_NAME = 1,
+    CREATE = 2,
+    CREATE_EXPECTING_NAME =3,
+    VARIABLE = 4,
+    VARIABLE_EXPECTING_NAME = 5,
+    PS_COMMENT =6,
+    BS_COMMENT = 7,
+    EXPECTING_ANY = 8,
+    PS_ERROR = 9
 } parser_state_t;
 
 

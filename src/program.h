@@ -17,6 +17,7 @@ typedef struct program {
               // Colon-definition, IF ELSE THEN, LOOP etc
   p_code_p *pcp_array;
   int npcp_array;
+  p_code_p* pcp; // Program counter pointer
 } program_t, *program_p;
 
 program_p program_create(char *program_name);

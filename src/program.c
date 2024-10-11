@@ -37,10 +37,10 @@ int offs(program_p prog, p_code_p *p)
 void program_dump_cb(program_p prog, p_code_p pcp, ftask_p task) {
   var_p v;
   int ihere, ijump;
-  if (pcp == *task->pcp) {
+  if (pcp == *prog->pcp) {
     printf(" ==>");
   } 
-  ihere = offs(prog, task->pcp);
+  ihere = offs(prog, prog->pcp);
   ijump = pcp->val.l;
 
   switch (pcp->type) {

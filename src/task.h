@@ -34,7 +34,6 @@ typedef struct ftask {
 	funcptr rstack[R_STACK_SIZE];
 	int r_top;
 	program_p program;
-	p_code_p* pcp; // Program counter pointer
 	int loop_upper;
 	int loop_lower;
 } ftask_t, *ftask_p;
