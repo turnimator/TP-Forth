@@ -62,7 +62,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       printf("NUM:%ld ", pcp->val.l);
       break;
     case PCODE_BUILTIN:
-      printf("BLTIN:%s ", pcp->name);
+      printf("BIN:%s ", pcp->name);
       ip = builtin_lookup(pcp->name);
       break;
     case PCODE_VARIABLE:
@@ -70,7 +70,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       break;
     case PCODE_DICT_ENTRY:
       printf("DEF:%s ", pcp->name);
-      program_dump(pcp->val.prog, *(int*)p);
+      program_dump(pcp->val.prog, p);
       break;
     case PCODE_LOOP_DO:
       printf("LOOP:%s ", pcp->name);

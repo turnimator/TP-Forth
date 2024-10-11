@@ -16,6 +16,7 @@ typedef union p_code_val {
   long l;
   int var_idx; // Index into variable table
   program_p prog;
+  p_code_p* jump_to;
 } p_val_t, *p_val_p;
 
 typedef enum p_code_type {

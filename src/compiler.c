@@ -8,9 +8,23 @@
 #include "compiler.h"
 #include "p_code.h"
 
+program_p program_stack[32];
+int program_Stack_top = 0;
+
+void ct_prog_push(program_p prog)
+{
+	program_stack[program_Stack_top] = prog;
+	program_Stack_top++;
+}
+
+program_p ct_prog_pop()
+{
+	program_Stack_top--;
+	return program_stack[program_Stack_top];
+}
+
 static ct_t Ct_stack;
  
-
 void cts_push(ctstack_t st,p_code_p cond)
 {
 	st.pca[st.npca] = cond;

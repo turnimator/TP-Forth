@@ -15,73 +15,86 @@
 /**
 Loop through the program, calling func for each p-code
 */
-p_code_p program_loop(program_p progp, int (*func)(p_code_p, int pcn),
-                      int pcn) {
+void program_loop(program_p progp, void (*func)(program_p, p_code_p, ftask_p),
+                  ftask_p task) {
   for (int i = 0; i < progp->npcp_array; i++) {
-    if (func(progp->pcp_array[i], pcn == i ? 1 : 0)) {
-      return progp->pcp_array[i];
-    }
+    func(progp, progp->pcp_array[i], task);
   }
-  return 0;
 }
 
-int program_dump_cb(p_code_p pcp, int here) {
-  var_p v;
-  if (here) {
-    printf(" >");
+int offs(program_p prog, p_code_p *p) 
+{
+  int program_offset;
+  for (program_offset = 0; program_offset < prog->npcp_array;
+       program_offset++) {
+    if (prog->pcp_array + program_offset == p) {
+      return program_offset;
+    }
   }
+  return program_offset;
+}
+
+void program_dump_cb(program_p prog, p_code_p pcp, ftask_p task) {
+  var_p v;
+  int ihere, ijump;
+  if (pcp == *task->pcp) {
+    printf(" ==>");
+  } 
+  ihere = offs(prog, task->pcp);
+  ijump = offs(prog, pcp->val.jump_to); // Only meaningful when set
+
   switch (pcp->type) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
-    return 0;
+    return;
   case PCODE_BUILTIN:
-    printf("PRMTV:%s ", pcp->name);
-    return 0;
+    printf("BIN:%s ", pcp->name);
+    return;
   case PCODE_VARIABLE:
     v = variable_get(pcp->val.var_idx);
     printf("VAR:(%s=%s) ", pcp->name, vartype_string(v));
-    return 0;
+    return;
   case PCODE_DICT_ENTRY:
     printf("DEF:%s ", pcp->name);
-    program_dump(pcp->val.prog, here);
-    return 0;
+    program_dump(pcp->val.prog, task);
+    return;
   case PCODE_IF:
-    printf("IF:%ld ", pcp->val.l);
-    return 0;
+    printf("IF:%d ", ijump);
+    return;
   case PCODE_ELSE:
-    printf("ELSE:%ld ", pcp->val.l);
-    return 0;
+    printf("ELSE:%d ", ijump);
+    return;
   case PCODE_THEN:
-    printf("THEN:%ld ", pcp->val.l);
-    return 0;
+    printf("THEN:%d ", ijump);
+    return;
   case PCODE_LOOP_DO:
-    printf("DO:%ld ", pcp->val.l);
-    return 0;
+    printf("DO:%d ", ijump);
+    return;
   case PCODE_LOOP_END:
-    printf("LOOP:%ld ", pcp->val.l);
-    return 0;
+    printf("LOOP:%d ", ijump);
+    return;
   case PCODE_I:
     printf("I:%s ", pcp->name);
-    return 0;
+    return;
     break;
+    case PCODE_LAST:
+    printf("END ");
   default:
     printf("?");
-    return 0;
+    return;
     break;
   }
-  printf("Should never arrive here\n");
-  return 1;
+  printf("\nShould never arrive here\n");
 }
 
-void program_dump(program_p progp, int pcn) {
+void program_dump(program_p progp, ftask_p task) {
   printf("\n----------------| %s |-----------------\n", progp->name);
-  program_loop(progp, program_dump_cb, pcn);
+  program_loop(progp, program_dump_cb, task);
   printf("\n----------------------------------------\n\n");
 }
 
-static int program_delete_cb(p_code_p pcp, int pcn) {
+static void program_delete_cb(program_p prog, p_code_p pcp, ftask_p task) {
   p_code_delete(pcp);
-  return 0;
 }
 
 void program_delete(program_p prog) {
@@ -104,7 +117,7 @@ program_p program_create(char *name) {
 }
 
 void program_add_p_code(program_p prog, p_code_p pcp) {
-  logg(__func__, pcp->name);
+  logg(prog->name, pcp->name);
 
   prog->npcp_array++;
   prog->pcp_array =
@@ -112,7 +125,9 @@ void program_add_p_code(program_p prog, p_code_p pcp) {
   prog->pcp_array[prog->npcp_array - 1] = pcp;
 }
 
-long program_last(program_p prog) { return prog->npcp_array - 1; }
+p_code_p *program_last(program_p prog) {
+  return prog->pcp_array + prog->npcp_array - 1;
+}
 
 void program_add(program_p prog, char *src) {
   p_code_p pc = p_code_parse_word(src);

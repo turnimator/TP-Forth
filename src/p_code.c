@@ -42,7 +42,7 @@ void p_code_delete(p_code_p pc)
 
 static p_code_p p_code_create_long(long l) 
 {
-  p_code_p rv = p_code_create_empty("LONG");
+  p_code_p rv = p_code_create_empty("NUM");
   rv->type = PCODE_NUMBER;
   rv->val.l = l;
   return rv;
@@ -64,7 +64,7 @@ static p_code_p p_code_create_dict_entry(dict_entry_p dep) {
 
 p_code_p p_code_ct_create(p_code_type_t pctyp)
 {
-	p_code_p rv = p_code_create_empty("CT");
+	p_code_p rv = p_code_create_empty("CTL");
 	rv->type=pctyp;
 	return rv;
 }
@@ -80,7 +80,7 @@ p_code_p p_code_create_variable(int idx)
 
 p_code_p p_code_create_I()
 {
-	p_code_p rv = p_code_create_empty("I");
+	p_code_p rv = p_code_create_empty("IDX");
 	rv->type = PCODE_I;
 	return rv;
 }
@@ -109,6 +109,6 @@ p_code_p p_code_parse_word(char *src) {
   if (dep) {
     return p_code_create_dict_entry(dep);
   }
-  printf("p_code_parse_word(%s) -- ERROR NOT FOUND\n", src);
+  printf("\n^^^^p_code_parse_word(%s) -- ERROR NOT FOUND\n", src);
   return 0;
 }
