@@ -41,7 +41,7 @@ void program_dump_cb(program_p prog, p_code_p pcp, ftask_p task) {
     printf(" ==>");
   } 
   ihere = offs(prog, task->pcp);
-  ijump = offs(prog, pcp->val.jump_to); // Only meaningful when set
+  ijump = pcp->val.l;
 
   switch (pcp->type) {
   case PCODE_NUMBER:

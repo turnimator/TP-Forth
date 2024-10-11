@@ -55,16 +55,15 @@ int isForthCommentEnd(char *tok) {
 static void if_create() {
   ct_push(CT_IF, current_IF); // In case of a nested IF, tuck away the old
   current_IF = p_code_ct_create(PCODE_IF); // and enter the new
-  current_IF->val.jump_to = 0;
+  current_IF->val.l = 0;
   program_add_p_code(current_PROG, current_IF);
 }
 
 static void else_create() {
-  current_IF->val.jump_to =
-      program_last(current_PROG) + 1; // Make IF FALSE point here
+  current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
   ct_push(CT_IF, current_IF);
   current_IF = p_code_ct_create(PCODE_ELSE); //
-  current_IF->val.jump_to = 0;
+  current_IF->val.l = 0;
   program_add_p_code(current_PROG, current_IF);
 }
 
@@ -74,15 +73,15 @@ If the current is ELSE, we must ct_pop and fixup before handling THEN.
 **/
 static void then_create() {
   if (current_IF->type == PCODE_ELSE) {
-    current_IF->val.jump_to = program_last(current_PROG) + 1;
+    current_IF->val.l = current_PROG->npcp_array;
     current_IF = ct_pop(CT_IF);
   }
   /* If we had an IF ELSE THEN, we are now on the IF THEN part*/
   if (current_IF->val.l == 0) {
-    current_IF->val.jump_to = program_last(current_PROG) + 1;
+    current_IF->val.l = current_PROG->npcp_array;
   }
   p_code_p pcode = p_code_ct_create(PCODE_THEN); //
-  pcode->val.jump_to = program_last(current_PROG) + 1;
+  pcode->val.l = current_PROG->npcp_array;
   program_add_p_code(current_PROG, pcode);
   current_IF = ct_pop(CT_IF);
 }
@@ -97,7 +96,8 @@ static void then_create() {
         LOOP: jump to DO + 1 (contained in LOOP P-CODE)
 
 **/
-static void do_create() {
+static void do_create() 
+{
   ct_push(CT_DO, current_DO); // Must be popped on LOOP
   current_DO = p_code_ct_create(PCODE_LOOP_DO);
   current_DO->val.l = current_PROG->npcp_array + 1;
@@ -118,11 +118,13 @@ static void loop_create()
   loop_end_code->val.l =  ijump;
   
   program_add_p_code(current_PROG, loop_end_code);
-    ihere =current_PROG->npcp_array;
-  ijump = offs(current_PROG, current_DO->val.jump_to); // Only meaningful when set
-	//printf("EXIT LOOP: DO(%d) LOOP(%d)", ihere, ijump);
-	
   current_DO = ct_pop(CT_DO); // POP back the old loop
+}
+
+static void exit_create()
+{
+	p_code_p exit_code = p_code_ct_create(PCODE_EXIT);
+	program_add_p_code(current_PROG, exit_code);
 }
 
 static parser_state_t parse_variable(parser_state_t state, char *name) {
@@ -159,6 +161,12 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
     loop_create();
     return state;
   }
+
+  if (strcmp(tok, "EXIT") == 0) {
+    exit_create();
+    return state;
+  }
+
 
   if (strcmp(tok, "VARIABLE") == 0) {
     return VARIABLE_EXPECTING_NAME;

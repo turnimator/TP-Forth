@@ -106,11 +106,30 @@ static inline void d_step(ftask_p task)
 	int l1 = d_pop(task);
 	if (l1==0){
 		STEP = 1;
-		printf("\nPress x to exit stepping ...");
+		printf("\nPress x to exit stepping ...\n==>");
 	} else {
 		STEP = 0;
 	}
 }
+
+static inline void d_and(ftask_p task) {
+  long l1 = d_pop(task);
+  long l2 = d_pop(task);
+  d_push(task, (!l2 && !l1) ? 0 : 1);
+}
+
+static inline void d_or(ftask_p task) {
+  long l1 = d_pop(task);
+  long l2 = d_pop(task);
+  d_push(task, (!l2 || !l1) ? 0 : 1);
+}
+
+static inline void d_not(ftask_p task) {
+  long l1 = d_pop(task);
+  
+  d_push(task, (l1==0) ? 1 : 0);
+}
+
 
 static inline void d_lt(ftask_p task) {
   long l1 = d_pop(task);
@@ -241,6 +260,12 @@ void d_stack_dump(ftask_p task)
   printf(" ]\n");
 }
 
+static void f_exit(ftask_p task)
+{
+	// Handled in runtime.c
+}
+///////////////////////////////////
+
 void builtin_add(char *name, funcptr code) 
 {
   bdb_add(builtin_create(name, code));
@@ -328,6 +353,9 @@ void builtin_build_db() {
   builtin_add("+", d_plus);
   builtin_add("-", d_minus);
   builtin_add(".", d_dot);
+  builtin_add("and", d_and);
+  builtin_add("or", d_or);
+  builtin_add("not", d_not);
   builtin_add("CR", d_cr);
   builtin_add("s.", s_dot);
   builtin_add(".s", d_stack_dump);
@@ -344,6 +372,7 @@ void builtin_build_db() {
   builtin_add("!", d_store_val);
   builtin_add("@", d_load_val);
   builtin_add("STEP", d_step);
+  builtin_add("EXIT", f_exit);
   add_custom_builtins();
   builtin_db_dump();
   index_names();

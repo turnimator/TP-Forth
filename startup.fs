@@ -1,3 +1,4 @@
 
-1 4 0 DO I . LOOP
+
+10 0 DO I 5 = IF EXIT . ELSE I . THEN LOOP
 
