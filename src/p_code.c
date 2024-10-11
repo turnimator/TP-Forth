@@ -87,7 +87,8 @@ p_code_p p_code_create_I()
 /**
 Parse a word, creating a p-code
 */
-p_code_p p_code_parse_word(char *src) {
+p_code_p p_code_parse_word(char *src) 
+{
 	if(strcmp(src, "I")==0){
 		return p_code_create_I();
 	}

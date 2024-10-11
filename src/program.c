@@ -77,6 +77,9 @@ void program_dump_cb(program_p prog, p_code_p pcp, ftask_p task) {
     printf("I:%s ", pcp->name);
     return;
     break;
+    case PCODE_EXIT:
+    printf("EXIT:%s ", pcp->name);
+    return;
     case PCODE_LAST:
     printf("END ");
   default:

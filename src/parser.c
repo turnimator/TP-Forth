@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-//#define DEBUG
+#define DEBUG
 
 #include "parser.h"
 
@@ -87,54 +87,52 @@ static void then_create() {
 }
 
 /**
-     
+
 **/
-static void do_create() 
-{
+static void do_create() {
+  logg("DO", "PUSH");
   ct_push(CT_DO, current_DO); // Must be popped on LOOP
   current_DO = p_code_ct_create(PCODE_LOOP_DO);
   current_DO->val.l = current_PROG->npcp_array + 1;
   program_add_p_code(current_PROG, current_DO);
 }
 
-static void loop_create() 
-{
-	 int ihere, ijump;
-  
-  ihere =current_PROG->npcp_array;
+static void loop_create() {
+  int ihere, ijump;
+
+  ihere = current_PROG->npcp_array;
   ijump = current_DO->val.l;
-	//printf("ENTER LOOP: DO(%d) LOOP(%d)\n", ihere, ijump);
-	
+  // printf("ENTER LOOP: DO(%d) LOOP(%d)\n", ihere, ijump);
+
   logg("CREATE", "ENTER");
   p_code_p loop_end_code;
   loop_end_code = p_code_ct_create(PCODE_LOOP_END);
-  loop_end_code->val.l =  ijump;
-  
+  loop_end_code->val.l = ijump;
+
   program_add_p_code(current_PROG, loop_end_code);
   current_DO = ct_pop(CT_DO); // POP back the old loop
+  logg("DO", "POP");
 }
 
-static void exit_create()
-{
-	p_code_p exit_code = p_code_ct_create(PCODE_EXIT);
-	program_add_p_code(current_PROG, exit_code);
+static void exit_create() {
+  logg("EXIT", "");
+  p_code_p exit_code = p_code_ct_create(PCODE_EXIT);
+  program_add_p_code(current_PROG, exit_code);
 }
 
-static parser_state_t parse_variable(parser_state_t state, char *name)
-{
-	logg("VARIABLE", name);
-	return VARIABLE_EXPECTING_NAME;
-} 
+static parser_state_t parse_variable(parser_state_t state, char *name) {
+  logg("VARIABLE", name);
+  return VARIABLE_EXPECTING_NAME;
+}
 
-static parser_state_t parse_variable_name(parser_state_t state, char *name) 
-{
-	logg("VARIABLE_EXPECTING_NAME", name);
-	if (strcmp(name, "VARIABLE")==0){
-		printf("parse error variable %s\n", name);
-		return VARIABLE_EXPECTING_NAME;
-	}
-	printf("adding variable %s\n", name);
-	
+static parser_state_t parse_variable_name(parser_state_t state, char *name) {
+  logg("VARIABLE_EXPECTING_NAME", name);
+  if (strcmp(name, "VARIABLE") == 0) {
+    printf("parse error variable %s\n", name);
+    return VARIABLE_EXPECTING_NAME;
+  }
+  printf("adding variable %s\n", name);
+
   variable_add(name);
   return EXPECTING_ANY;
 }
@@ -149,35 +147,41 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   }
   if (strcmp(tok, "IF") == 0) {
     if_create();
-    return state;
+    return EXPECTING_ANY;
   }
   if (strcmp(tok, "THEN") == 0) {
     then_create();
-    return state;
+    return EXPECTING_ANY;
   }
   if (strcmp(tok, "ELSE") == 0) {
     else_create();
-    return state;
+    return EXPECTING_ANY;
   }
   if (strcmp(tok, "DO") == 0) {
     do_create();
-    return state;
+    return EXPECTING_ANY;
   }
   if (strcmp(tok, "LOOP") == 0) {
     loop_create();
-    return state;
+    return EXPECTING_ANY;
   }
 
   if (strcmp(tok, "EXIT") == 0) {
     exit_create();
-    return state;
+    return EXPECTING_ANY;
   }
 
   if (strcmp(tok, "VARIABLE") == 0) {
     return VARIABLE_EXPECTING_NAME;
   }
   if (strcmp(tok, ";") == 0) {
-    current_PROG = ct_prog_pop(); 
+    current_PROG = ct_prog_pop();
+    return EXPECTING_ANY;
+  }
+  if (strcmp(tok, "(") == 0 || strcmp(tok, "\\") == 0) {
+    return PS_COMMENT;
+  }
+  if (isForthCommentEnd(tok)) {
     return EXPECTING_ANY;
   }
   program_add(current_PROG, tok);
@@ -185,27 +189,25 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
 }
 
 parser_state_t parse_comment(parser_state_t state, char *tok) {
-  logg("_", tok);
+  logg("COMMENT", tok);
   if (isForthCommentEnd(tok)) {
     return EXPECTING_ANY;
   }
   return PS_COMMENT;
 }
 
-parser_state_t parse_colon(parser_state_t state, char *tok) 
-{
-	logg("COLON", tok);
-	return COLON_EXPECTING_NAME;
+parser_state_t parse_colon(parser_state_t state, char *tok) {
+  logg("COLON", tok);
+  return COLON_EXPECTING_NAME;
 }
 
 /**
 The action is performed by the caller
 */
-parser_state_t parse_colon_name(parser_state_t state, char *tok) 
-{
+parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   logg("COLON NAME", tok);
-  de = dict_entry_create(0); 
-    dict_dump(0);
+  de = dict_entry_create(0);
+  dict_dump(0);
   dict_entry_set_name(de, tok);
   dict_add_entry(0, de);
   current_PROG = de->prog;
@@ -245,14 +247,11 @@ typedef struct parse_table_entry {
     EXPECTING_ANY,
     PS_ERROR
 */
-static ptentry_t pftable[] = {{":", strcmp, parse_colon},
-									{"", cmpany, parse_colon_name},
-                              {"CREATE", strcmp, parse_variable},
-                               {"", cmpany, parse_variable_name},
-                              {"VARIABLE", strcmp, parse_variable},
-                              {"", cmpany, parse_variable_name},
-                              {"(\\", cmpcomment, parse_comment},
-                              {"", cmpany, parse_word}};
+static ptentry_t pftable[] = {
+    {":", strcmp, parse_colon},           {"", cmpany, parse_colon_name},
+    {"CREATE", strcmp, parse_variable},   {"", cmpany, parse_variable_name},
+    {"VARIABLE", strcmp, parse_variable}, {"", cmpany, parse_variable_name},
+    {"(\\", cmpcomment, parse_comment},   {"", cmpany, parse_word}};
 
 /**
 

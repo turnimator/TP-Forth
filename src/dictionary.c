@@ -129,7 +129,6 @@ dict_entry_p dict_entry_create(dict_p dp) {
   if (!dp) {
     dp = Default_dict;
   }
-
   dict_entry_p rv = malloc(sizeof(dict_entry_t));
   return rv;
 }

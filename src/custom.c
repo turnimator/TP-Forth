@@ -14,4 +14,7 @@ static void my_custom(ftask_p task) {
   d_push(task, 2);
 }
 
-void add_custom_builtins() { builtin_add("my_custom", my_custom); }
+void add_custom_builtins() 
+{ 
+	builtin_add("my_custom", my_custom); 
+	}

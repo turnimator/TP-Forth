@@ -363,7 +363,7 @@ void builtin_build_db() {
   builtin_add("<", d_lt);
   builtin_add("=", d_eq);
   builtin_add("*", d_mul);
-  builtin_add("mod", d_modulo);
+  builtin_add("MOD", d_modulo);
   builtin_add("%", d_modulo);
   builtin_add("/", d_div);
   builtin_add("TRUE", d_true);
