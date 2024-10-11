@@ -343,19 +343,19 @@ If one is missing, the system will crash on qsort().
 */
 void builtin_build_db() {
   bdb_create();
-  builtin_add("dup", d_dup);
-  builtin_add("swap", d_swap);
-  builtin_add("over", d_over);
-  builtin_add("rot", d_rot);
-  builtin_add("drop", d_drop);
-  builtin_add("2drop", d_drop2);
-  builtin_add("pick", f_pick);
+  builtin_add("DUP", d_dup);
+  builtin_add("SWAP", d_swap);
+  builtin_add("OVER", d_over);
+  builtin_add("ROT", d_rot);
+  builtin_add("DROP", d_drop);
+  builtin_add("2DROP", d_drop2);
+  builtin_add("PICK", f_pick);
   builtin_add("+", d_plus);
   builtin_add("-", d_minus);
   builtin_add(".", d_dot);
-  builtin_add("and", d_and);
-  builtin_add("or", d_or);
-  builtin_add("not", d_not);
+  builtin_add("AND", d_and);
+  builtin_add("OR", d_or);
+  builtin_add("NOT", d_not);
   builtin_add("CR", d_cr);
   builtin_add("s.", s_dot);
   builtin_add(".s", d_stack_dump);

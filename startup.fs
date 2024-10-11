@@ -1,4 +1,5 @@
 
+VARIABLE myvar
 
-10 0 DO I 5 = IF EXIT . ELSE I . THEN LOOP
+: tst 1 1 + . ;
 

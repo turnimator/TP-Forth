@@ -54,8 +54,11 @@ static inline void ef_dict_entry(program_p prog, ftask_p task) {
     printf("\nEXEC: %s dict_lookup failed!", pcp->name);
     task->pcp++;
   }
+  p_code_p * saved = task->pcp;
+  task->pcp = sub->prog->pcp_array;
+  //program_dump(prog,task);
   run_prog(task, sub->prog);
-  task->pcp++;
+  task->pcp=saved+1;
 }
 
 /**
@@ -74,40 +77,12 @@ static inline void ef_i_cb(program_p prog, ftask_p task) {
   task->pcp++;
 }
 
-static void run_block(program_p progp, ftask_p task, int i) {
-  p_code_p pcp = *task->pcp;
-  while (pcp->type != PCODE_LOOP_END) {
-    if (pcp->type == PCODE_I) { // This is a kludge
-      d_push(task, i);
-      task->pcp++;
-    } else {
-      cb_program_exec_word(progp, task);
-    }
-  }
-}
-
-/*
-We may be running different programs in the same task.
-Dictionary entries have their own program
-*/
-static void ef_do(program_p progp, ftask_p task) {
-  p_code_p pcp = *task->pcp;
-  long l1 = d_pop(task);
-  long l2 = d_pop(task);
-
-  for (int i = 0; i < (l2 - l1); i++) {
-    // printf("\nLoopcnt: %d pcnt:%d", i, pcnt);
-    // program_dump(progp, pcnt);
-    run_block(progp, task, i + l1);
-  }
-}
 
 /*
 We may be running different programs in the same task.
 Dictionary entries have their own program
 */
 static void ef_do_new(program_p prog, ftask_p task) {
-  p_code_p pcp = *task->pcp;
   task->loop_lower = d_pop(task);
   task->loop_upper = d_pop(task);
   task->pcp++;
@@ -183,7 +158,8 @@ static cbp_exec_func farray[] = {
     ef_if,    ef_do_new,    ef_loop_end,  ef_i_cb,     ef_else,
     ef_then,  ef_exit,      ef_last_code};
 
-static void cb_program_exec_word(program_p prog, ftask_p task) {
+static void cb_program_exec_word(program_p prog, ftask_p task) 
+{
   p_code_p pcp = *task->pcp;
   char buf[128];
   sprintf(buf, "%p %s%d", task->pcp, prog->name, pcp->type);

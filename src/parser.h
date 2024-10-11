@@ -15,9 +15,12 @@
 #define MAX_WORDS_IN_DEF 256
 
 
-typedef enum parser_state { 
+typedef enum parser_state {
+	COLON,
     COLON_EXPECTING_NAME,
+    CREATE,
     CREATE_EXPECTING_NAME,
+    VARIABLE,
     VARIABLE_EXPECTING_NAME,
     PS_COMMENT,
     EXPECTING_ANY,

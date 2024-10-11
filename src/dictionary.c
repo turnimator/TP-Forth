@@ -96,7 +96,8 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
   return 0;
 }
 
-void dict_dump(dict_p dp) {
+void dict_dump(dict_p dp) 
+{
   if (!dp) {
     dp = Default_dict;
   }
