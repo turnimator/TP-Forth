@@ -6,12 +6,15 @@
  *
  */
 
+#define DEBUG
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "dictionary.h"
 
 #include "builtins.h"
+#include "logg.h"
 #include "p_code.h"
 #include "program.h"
 
@@ -44,6 +47,7 @@ static inline int cb_lookup(dict_entry_p e, void *p) {
 }
 
 dict_entry_p dict_lookup(dict_p dp, char *key) {
+  logg("LOOKUP", key);
   if (!dp) {
     dp = Default_dict;
   }
@@ -51,8 +55,9 @@ dict_entry_p dict_lookup(dict_p dp, char *key) {
 }
 
 static int cb_dict_dump(dict_entry_p dep, void *p) {
+  logg(dep->name, dep->prog->name);
   idx_builtin_p ip;
-  printf("%s(%s):", dep->name, dep->prog->name);
+
   for (int i = 0; i < dep->prog->npcp_array; i++) {
 
     p_code_p pcp = dep->prog->pcp_array[i];
@@ -73,7 +78,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       program_dump(pcp->val.prog, p);
       break;
     case PCODE_LOOP_DO:
-      printf("LOOP:%s ", pcp->name);
+      printf("DO:%s ", pcp->name);
       break;
     case PCODE_LOOP_END:
       printf("LOOP:%s ", pcp->name);
@@ -96,8 +101,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
   return 0;
 }
 
-void dict_dump(dict_p dp) 
-{
+void dict_dump(dict_p dp) {
   if (!dp) {
     dp = Default_dict;
   }
@@ -108,10 +112,11 @@ void dict_dump(dict_p dp)
 }
 
 void dict_add_entry(dict_p dp, dict_entry_p dep) {
+  logg(dep->name, "");
   if (!dp) {
     dp = Default_dict;
   }
-  
+
   dict_entry_p dep_exist = dict_lookup(dp, dep->name);
   if (dep_exist) {
     dep_exist = dep;
@@ -125,22 +130,20 @@ void dict_add_entry(dict_p dp, dict_entry_p dep) {
   dict_dump(dp);
 }
 
-dict_entry_p dict_entry_create(dict_p dp) {
+dict_entry_p dict_entry_create(dict_p dp, char *name) {
+  logg(name, "");
   if (!dp) {
     dp = Default_dict;
   }
   dict_entry_p rv = malloc(sizeof(dict_entry_t));
+  rv->prog = program_create(name);
+  rv->name = malloc(strlen(name));
+  strcpy(rv->name, name);
+
   return rv;
 }
 
-void dict_entry_set_name(dict_entry_p dep, char *name) {
-
-  dep->prog = program_create(name);
-  dep->name = malloc(strlen(name));
-  strcpy(dep->name, name);
-}
-
 void dict_entry_add_word(dict_entry_p dep, char *word) {
-
+  logg(dep->name, word);
   program_add(dep->prog, word);
 }

@@ -6,13 +6,17 @@
  *
  */
 #include "compiler.h"
+#include "logg.h"
 #include "p_code.h"
+
+#define DEBUG
 
 program_p program_stack[32];
 int program_Stack_top = 0;
 
 void ct_prog_push(program_p prog)
 {
+	logg("NEW", prog->name);
 	program_stack[program_Stack_top] = prog;
 	program_Stack_top++;
 }
@@ -20,6 +24,7 @@ void ct_prog_push(program_p prog)
 program_p ct_prog_pop()
 {
 	program_Stack_top--;
+	logg(prog->name,program_stack[program_Stack_top]->name);
 	return program_stack[program_Stack_top];
 }
 

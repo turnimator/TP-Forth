@@ -29,8 +29,7 @@ typedef struct dictionary {
 void dict_init(void);
 void dict_dump(dict_p dp);
 dict_p dict_create(char*);
-dict_entry_p dict_entry_create(dict_p);
-void dict_entry_set_name(dict_entry_p, char*);
+dict_entry_p dict_entry_create(dict_p, char* name);
 void dict_entry_add_word(dict_entry_p de, char*);
 dict_entry_p dict_lookup(dict_p, char*);
 void dict_add_entry(dict_p, dict_entry_p);

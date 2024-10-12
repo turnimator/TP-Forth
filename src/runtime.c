@@ -21,7 +21,7 @@ static cbp_exec_func farray[];
 
 static void ef_error(program_p prog, ftask_p task) {
   logg(prog->pcp->name, "P-CODE ERROR");
-  prog->pcp = program_last(prog);
+  prog->pcp = prog->pcp_array + prog->npcp_array;
 }
 
 static inline void cb_ef_number(program_p prog, ftask_p task) {
@@ -54,11 +54,11 @@ static inline void ef_dict_entry(program_p prog, ftask_p task) {
     printf("\nEXEC: %s dict_lookup failed!", pcp->name);
     prog->pcp++;
   }
-  p_code_p * saved = prog->pcp;
+  p_code_p *saved = prog->pcp;
   prog->pcp = sub->prog->pcp_array;
-  //program_dump(prog,task);
+  // program_dump(prog,task);
   run_prog(task, sub->prog);
-  prog->pcp=saved+1;
+  prog->pcp = saved + 1;
 }
 
 /**
@@ -73,31 +73,37 @@ while a < b
 static void cb_program_exec_word(program_p, ftask_p);
 
 static inline void ef_i_cb(program_p prog, ftask_p task) {
-  d_push(task, task->loop_lower);
+  d_push(task, ll_tos(task));
   prog->pcp++;
 }
-
 
 /*
 We may be running different programs in the same task.
 Dictionary entries have their own program
 */
 static void ef_do_new(program_p prog, ftask_p task) {
-  task->loop_lower = d_pop(task);
-  task->loop_upper = d_pop(task);
+  ll_push(task, d_pop(task));
+  lu_push(task, d_pop(task));
   prog->pcp++;
 }
 
 /**
 jump to code at DO
+Using macros for speed here
 */
 static inline void ef_loop_end(program_p prog, ftask_p task) {
+  logg("LOOP END", "");
   p_code_p pcp = *prog->pcp;
-  if (task->loop_lower++ >= task->loop_upper) {
+  printf("LOOP FROM %d TO %d \n", ll_tos(task), lu_tos(task));
+  if (ll_tos(task)++ >= lu_tos(task)) {
+    printf("***LOOP BREAK***\n");
     prog->pcp++;
+    ;
+    ll_pop(task); // Get our old values back in case of nested loops
+    lu_pop(task);
     return;
   }
-  // printf("LOOP BACK TO %ld\n", pcp->val.l);
+  printf("LOOP BACK TO %ld\n", pcp->val.l);
   prog->pcp = prog->pcp_array + pcp->val.l;
 }
 
@@ -128,8 +134,8 @@ static inline void ef_then(program_p prog, ftask_p task) {
   prog->pcp++;
 }
 
-static  void ef_exit(program_p prog, ftask_p task) {
-  prog->pcp = prog->pcp_array + prog->npcp_array ;
+static void ef_exit(program_p prog, ftask_p task) {
+  prog->pcp = prog->pcp_array + prog->npcp_array;
 }
 
 static inline void ef_last_code(program_p prog, ftask_p task) {
@@ -158,8 +164,7 @@ static cbp_exec_func farray[] = {
     ef_if,    ef_do_new,    ef_loop_end,  ef_i_cb,     ef_else,
     ef_then,  ef_exit,      ef_last_code};
 
-static void cb_program_exec_word(program_p prog, ftask_p task) 
-{
+static void cb_program_exec_word(program_p prog, ftask_p task) {
   p_code_p pcp = *prog->pcp;
   char buf[128];
   sprintf(buf, "%p %s%d", prog->pcp, prog->name, pcp->type);
@@ -179,8 +184,7 @@ static void cb_program_exec_word(program_p prog, ftask_p task)
 /**
 Loop through the program, calling func for each p-code
 */
-static int program_exec_loop(program_p prog, cbp_exec_func func,
-                             ftask_p task) {
+static int program_exec_loop(program_p prog, cbp_exec_func func, ftask_p task) {
   prog->pcp = prog->pcp_array;
   while (prog->pcp < prog->pcp_array + prog->npcp_array) {
     func(prog, task);

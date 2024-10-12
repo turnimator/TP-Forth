@@ -9,7 +9,7 @@
 #ifndef LOGG_H_
 #define LOGG_H_
 #ifdef DEBUG
-#define logg(a,b) printf("%s: %s %s\n", __func__, a, b)
+#define logg(a,b) printf("%s: %s( \"%s\" )\n", __func__, a, b)
 #else
 #define logg(a,b) //
 #endif

@@ -15,6 +15,8 @@ ftask_p ftask_create(char *name) {
   rv->r_top = 0;
   rv->d_top = 0;
   rv->v_top = 0;
+  rv->lu_top = 0;
+  rv->ll_top = 0;
   return rv;
 }
 

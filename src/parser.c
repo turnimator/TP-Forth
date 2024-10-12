@@ -9,7 +9,6 @@
 
 #include "parser.h"
 
-#include <ctype.h>
 #include <string.h>
 
 #include "compiler.h"
@@ -95,7 +94,7 @@ static void loop_create() {
 
   program_add_p_code(current_PROG, loop_end_code);
   current_DO = ct_pop(CT_DO); // POP back the old loop
-  logg("DO", "POP");
+  logg("LOOP", "POP");
 }
 
 static void exit_create() {
@@ -103,6 +102,8 @@ static void exit_create() {
   p_code_p exit_code = p_code_ct_create(PCODE_EXIT);
   program_add_p_code(current_PROG, exit_code);
 }
+
+
 
 static parser_state_t parse_variable(parser_state_t state, char *name) {
   logg("VARIABLE", name);
@@ -160,6 +161,7 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   }
   if (strcmp(tok, ";") == 0) {
     current_PROG = ct_prog_pop();
+    dict_dump(0);
     return EXPECTING_ANY;
   }
   if (strcmp(tok, "(") == 0){
@@ -175,15 +177,15 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
 }
 
 parser_state_t parse_ps_comment(parser_state_t state, char *tok) {
-  logg("COMMENT", tok);
-  if (strcmp(tok,")")) {
+  logg("PS COMMENT", tok);
+  if (strcmp(tok,")")==0) {
     return EXPECTING_ANY;
   }
   return PS_COMMENT;
 }
 
 parser_state_t parse_bs_comment(parser_state_t state, char *tok) {
-  logg("COMMENT", tok);
+  logg("BS COMMENT", tok);
   if (strcmp(tok, "\n")==0) {
     return EXPECTING_ANY;
   }
@@ -201,12 +203,10 @@ The action is performed by the caller
 */
 parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   logg("COLON NAME", tok);
-  de = dict_entry_create(0);
-  dict_dump(0);
-  dict_entry_set_name(de, tok);
-  dict_add_entry(0, de);
+  de = dict_entry_create(0, tok);
   current_PROG = de->prog;
   ct_prog_push(de->prog);
+  dict_add_entry(0, de);
   dict_dump(0);
   return EXPECTING_ANY;
 }
@@ -218,12 +218,6 @@ typedef int (*cmpfunc)(const char *, const char *);
 
 static inline int cmpany(const char *s1, const char *s2) { return 0; }
 
-static inline int cmpcomment(const char *tok, const char *s2) {
-  if (strcmp(tok, "(") == 0 || strcmp(tok, "\\") == 0) {
-    return 0;
-  }
-  return 1;
-}
 
 typedef struct parse_table_entry {
   char *tok;
@@ -250,14 +244,14 @@ static ptentry_t pftable[] = {{":", strcmp, parse_colon},
                               {"VARIABLE", strcmp, parse_variable},
                               {"", cmpany, parse_variable_name},
                               {"(", strcmp, parse_ps_comment},
-                              {"\\", strcmp, parse_ps_comment},
+                              {"\\", strcmp, parse_bs_comment},
                               {"", cmpany, parse_word}};
 
 /**
 
 */
-program_p parse(ftask_p task, char *source) {
-  current_PROG = task->program;
+program_p parse(ftask_p task, char *source)
+{
   static const char *delim = " \t\n\r";
   state = EXPECTING_ANY; // entry no. 4 in the table (the "default")
 

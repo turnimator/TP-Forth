@@ -15,10 +15,9 @@ in primitives_build_db() like the one below.
 DB_Primitives[D_DUP] = primitive_create("DUP", D_DUP, d_dup);
 **/
 
-
 typedef struct built_in {
   char *name;
-  int op;	// Index into  DB_builtin = "opcode"
+  int op; // Index into  DB_builtin = "opcode"
   funcptr code;
 } builtin_t, *builtin_p;
 
@@ -27,8 +26,10 @@ typedef struct idx_built_in {
   int op;
 } idx_builtin_t, *idx_builtin_p;
 
-
 extern builtin_p *DB_builtins;
+
+#define ll_tos(task) (task->loop_lower[task->ll_top - 1])
+#define lu_tos(task) (task->loop_upper[task->lu_top - 1])
 
 void builtin_build_db(void);
 void builtin_test(ftask_p task);
@@ -42,7 +43,12 @@ long d_pop(ftask_p task);
 long d_tos(ftask_p task);
 long d_pick(ftask_p task, int num);
 void d_pock(ftask_p task, int no, long val);
-
- void v_push(ftask_p task, int idx);
+//long lu_tos(ftask_p task);
+//long ll_tos(ftask_p task);
+long lu_pop(ftask_p task);
+long ll_pop(ftask_p task);
+void lu_push(ftask_p task, long val);
+void ll_push(ftask_p task, long val);
+void v_push(ftask_p task, int idx);
 
 #endif /* BUILTINS_H_ */

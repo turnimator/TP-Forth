@@ -52,10 +52,12 @@ int main(int ac, char*av[]) {
 	char* src = read_file(filename);
 	if (src){
 		program_p prog = parse(t, src);
+		t->program = prog;
 		run_task(t);
 		//free(src);
 	}
 	
+	t = ftask_create("Main");
 	while(fgets(buf, 255, stdin)){		
   		program_p prog = program_create("MAIN");
   		t->program = prog;
