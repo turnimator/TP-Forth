@@ -51,16 +51,14 @@ int main(int ac, char*av[]) {
 	}
 	char* src = read_file(filename);
 	if (src){
-		program_p prog = parse(t, src);
-		t->program = prog;
+		parse(t, src);
 		run_task(t);
 		//free(src);
 	}
 	
 	t = ftask_create("Main");
 	while(fgets(buf, 255, stdin)){		
-		program_p prog = parse(t, buf);
-		t->program = prog;
+		parse(t, buf);
 		run_task(t);
 		printf("\n%s", "ok ");
 	}

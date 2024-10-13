@@ -1,0 +1,8 @@
+cc -c tpforth.c -o tpforth.o
+cc -c task.c -o task.o
+cc -c runtime.c -o runtime.o
+cc -c program.c -o program.o
+cc -c parser.c -o parser.o
+cc -c dictionary.c -o dictionary.o
+cc -c builtins.c -o builtins.o
+cc tpforth.o variable.o task.o runtime.o program.o p_code.o parser.o logg.o dictionary.o custom.o compiler.o builtins.o -o tpforth

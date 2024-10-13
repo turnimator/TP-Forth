@@ -94,11 +94,14 @@ void program_delete(program_p prog) {
 }
 
 program_p program_create(char *name) {
+	logg("", name);
   program_p prog = malloc(sizeof(program_p));
   prog->name = malloc(strlen(name));
   strcpy(prog->name, name);
   prog->npcp_array = 0;
   prog->pcp = 0;
+  prog->r_top = 0;
+  //prog->r_stack[prog->r_top] = prog;
   return prog;
 }
 

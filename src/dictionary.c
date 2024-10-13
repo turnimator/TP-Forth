@@ -6,7 +6,7 @@
  *
  */
 
-#define DEBUG
+// #define DEBUG
 
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +23,7 @@ dict_p Default_dict;
 void dict_init(void) { Default_dict = dict_create("DEFAULT"); }
 
 dict_p dict_create(char *name) {
+  logg(name, "");
   dict_p rv = malloc(sizeof(dict_t));
   rv->name = malloc(strlen(name) + 1);
   rv->dep_array = malloc(sizeof(dict_entry_p *));
@@ -43,6 +44,7 @@ dict_entry_p dict_loop(dict_p dp, int (*callback)(dict_entry_p, void *),
 }
 
 static inline int cb_lookup(dict_entry_p e, void *p) {
+  logg((char *)p, "");
   return (strcmp(e->name, (char *)p) == 0) ? 1 : 0;
 }
 
@@ -56,7 +58,6 @@ dict_entry_p dict_lookup(dict_p dp, char *key) {
 
 static int cb_dict_dump(dict_entry_p dep, void *p) {
   logg(dep->name, dep->prog->name);
-  idx_builtin_p ip;
 
   for (int i = 0; i < dep->prog->npcp_array; i++) {
 
@@ -68,14 +69,13 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       break;
     case PCODE_BUILTIN:
       printf("BIN:%s ", pcp->name);
-      ip = builtin_lookup(pcp->name);
       break;
     case PCODE_VARIABLE:
       printf("VAR:%s=%ld ", pcp->name, pcp->val.l);
       break;
     case PCODE_DICT_ENTRY:
       printf("DEF:%s ", pcp->name);
-      program_dump(pcp->val.prog, p);
+      // program_dump(pcp->val.prog, p);
       break;
     case PCODE_LOOP_DO:
       printf("DO:%s ", pcp->name);
@@ -102,6 +102,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
 }
 
 void dict_dump(dict_p dp) {
+  logg("", "");
   if (!dp) {
     dp = Default_dict;
   }

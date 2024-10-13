@@ -15,7 +15,6 @@ typedef struct p_code *p_code_p;
 typedef struct program program_t, *program_p;
 
 #define D_STACK_SIZE 32
-#define R_STACK_SIZE 32
 #define S_STACK_SIZE 32
 #define LOOP_STACK_SIZE 16
 
@@ -28,8 +27,7 @@ typedef struct ftask {
   int d_top;
   int v_stack[S_STACK_SIZE];
   int v_top;
-  program_p r_stack[R_STACK_SIZE];
-  int r_top;
+  
   program_p program;
   int loop_upper[LOOP_STACK_SIZE];
   int lu_top;

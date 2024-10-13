@@ -51,7 +51,5 @@ void lu_push(ftask_p task, long val);
 void ll_push(ftask_p task, long val);
 void v_push(ftask_p task, int idx);
 
-void r_push(ftask_p task, program_p prog);
-program_p r_pop(ftask_p task);
 
 #endif /* BUILTINS_H_ */

@@ -12,16 +12,21 @@
 #include "p_code.h"
 #include "task.h"
 
+#define R_STACK_SIZE 32
+
 typedef struct program {
   char *name; // The name is either MAIN of name of subroutine,
               // Colon-definition, IF ELSE THEN, LOOP etc
   p_code_p *pcp_array;
   p_code_p *pcp; // Program counter pointer
   int npcp_array;
-
+  program_p r_stack[R_STACK_SIZE];
+  int r_top;
 } program_t, *program_p;
 
 program_p program_create(char *program_name);
+void r_push(program_p, program_p prog);
+program_p r_pop(program_p prog);
 void program_delete(program_p prog);
 void program_add(program_p program, char *word);
 void program_add_p_code(program_p prog, p_code_p pcp);
