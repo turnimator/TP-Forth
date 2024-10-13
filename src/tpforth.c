@@ -59,9 +59,8 @@ int main(int ac, char*av[]) {
 	
 	t = ftask_create("Main");
 	while(fgets(buf, 255, stdin)){		
-  		program_p prog = program_create("MAIN");
-  		t->program = prog;
-		parse(t, buf);
+		program_p prog = parse(t, buf);
+		t->program = prog;
 		run_task(t);
 		printf("\n%s", "ok ");
 	}

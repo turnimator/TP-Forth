@@ -17,16 +17,16 @@
 /**
 Loop through the program, calling func for each p-code
 */
-void program_loop(program_p progp, void (*func)(program_p, p_code_p, ftask_p),
+void program_loop(program_p prog, void (*func)(program_p, p_code_p, ftask_p),
                   ftask_p task) {
-  for (int i = 0; i < progp->npcp_array; i++) {
-    func(progp, progp->pcp_array[i], task);
+  for (int i = 0; i < prog->npcp_array; i++) {
+    func(prog, prog->pcp_array[i], task);
   }
 }
 
 void program_dump_cb(program_p prog, p_code_p pcp, ftask_p task) {
   var_p v;
-  
+
   if (prog->pcp && pcp == *prog->pcp) {
     printf(" ==>");
   }

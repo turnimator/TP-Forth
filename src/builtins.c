@@ -114,12 +114,24 @@ void d_pock(ftask_p task, int num, long val) {
 
 long d_tos(ftask_p task) { return task->d_stack[task->d_top - 1]; }
 
-inline void r_push(ftask_p task, funcptr c) {
-  task->rstack[task->r_top] = c;
+void r_push(ftask_p task, program_p c) 
+{
+  task->r_stack[task->r_top] = c;
   task->r_top++;
 }
 
-inline void v_push(ftask_p task, int i) {
+program_p r_pop(ftask_p task) 
+{
+  if (task->r_top < 0) {
+    printf("\n****Program Return Stack Underflow***");
+    return 0;
+  }
+  task->r_top--;
+  return task->r_stack[task->r_top];
+}
+
+
+void v_push(ftask_p task, int i) {
   task->v_stack[task->v_top] = i;
   task->v_top++;
 }
@@ -307,7 +319,7 @@ void builtin_add(char *name, funcptr code) {
   bdb_add(builtin_create(name, code));
 }
 
-static inline void freturn(ftask_p task) { task->rstack[task->r_top](task); }
+
 
 void builtins_test(ftask_p task) {}
 

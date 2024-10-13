@@ -54,11 +54,12 @@ static inline void ef_dict_entry(program_p prog, ftask_p task) {
     printf("\nEXEC: %s dict_lookup failed!", pcp->name);
     prog->pcp++;
   }
-  p_code_p *saved = prog->pcp;
+  r_push(task, prog);
   prog->pcp = sub->prog->pcp_array;
   // program_dump(prog,task);
   run_prog(task, sub->prog);
-  prog->pcp = saved + 1;
+  prog = r_pop(task);
+  prog->pcp++;
 }
 
 /**
@@ -81,7 +82,7 @@ static inline void ef_i_cb(program_p prog, ftask_p task) {
 We may be running different programs in the same task.
 Dictionary entries have their own program
 */
-static void ef_do_new(program_p prog, ftask_p task) {
+static void ef_do(program_p prog, ftask_p task) {
   ll_push(task, d_pop(task));
   lu_push(task, d_pop(task));
   prog->pcp++;
@@ -136,6 +137,7 @@ static inline void ef_then(program_p prog, ftask_p task) {
 
 static void ef_exit(program_p prog, ftask_p task) {
   prog->pcp = prog->pcp_array + prog->npcp_array;
+  r_pop(task);
 }
 
 static inline void ef_last_code(program_p prog, ftask_p task) {
@@ -161,7 +163,7 @@ corresponds to the PCODE type. from p_code.h:
   PCODE_LAST*/
 static cbp_exec_func farray[] = {
     ef_error, ef_primitive, cb_ef_number, ef_variable, ef_dict_entry,
-    ef_if,    ef_do_new,    ef_loop_end,  ef_i_cb,     ef_else,
+    ef_if,    ef_do,    ef_loop_end,  ef_i_cb,     ef_else,
     ef_then,  ef_exit,      ef_last_code};
 
 static void cb_program_exec_word(program_p prog, ftask_p task) {
@@ -184,11 +186,14 @@ static void cb_program_exec_word(program_p prog, ftask_p task) {
 /**
 Loop through the program, calling func for each p-code
 */
-static int program_exec_loop(program_p prog, cbp_exec_func func, ftask_p task) {
+static int program_exec_loop(program_p prog, cbp_exec_func func, ftask_p task) 
+{
+	r_push(task, prog);
   prog->pcp = prog->pcp_array;
   while (prog->pcp < prog->pcp_array + prog->npcp_array) {
     func(prog, task);
   }
+  prog = r_pop(task);
   return 0;
 }
 

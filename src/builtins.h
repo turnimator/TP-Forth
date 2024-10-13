@@ -43,12 +43,15 @@ long d_pop(ftask_p task);
 long d_tos(ftask_p task);
 long d_pick(ftask_p task, int num);
 void d_pock(ftask_p task, int no, long val);
-//long lu_tos(ftask_p task);
-//long ll_tos(ftask_p task);
+// long lu_tos(ftask_p task);
+// long ll_tos(ftask_p task);
 long lu_pop(ftask_p task);
 long ll_pop(ftask_p task);
 void lu_push(ftask_p task, long val);
 void ll_push(ftask_p task, long val);
 void v_push(ftask_p task, int idx);
+
+void r_push(ftask_p task, program_p prog);
+program_p r_pop(ftask_p task);
 
 #endif /* BUILTINS_H_ */

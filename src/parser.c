@@ -30,7 +30,6 @@ program_p current_PROG;
 
 static dict_entry_p de = 0; // Current colon definition
 
-
 /**
  * IF TRUE, fall though. When encountering ELSE skip to THEN
  * IF FALSE skip to ELSE+1 (thereby executing ELSE code) or THEN+1
@@ -81,11 +80,9 @@ static void do_create() {
 }
 
 static void loop_create() {
-  int ihere, ijump;
+  int ijump;
 
-  ihere = current_PROG->npcp_array;
   ijump = current_DO->val.l;
-  // printf("ENTER LOOP: DO(%d) LOOP(%d)\n", ihere, ijump);
 
   logg("CREATE", "ENTER");
   p_code_p loop_end_code;
@@ -102,8 +99,6 @@ static void exit_create() {
   p_code_p exit_code = p_code_ct_create(PCODE_EXIT);
   program_add_p_code(current_PROG, exit_code);
 }
-
-
 
 static parser_state_t parse_variable(parser_state_t state, char *name) {
   logg("VARIABLE", name);
@@ -159,26 +154,26 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   if (strcmp(tok, "VARIABLE") == 0) {
     return VARIABLE_EXPECTING_NAME;
   }
-  if (strcmp(tok, ";") == 0) {
+  if (strcmp(tok, ";") == 0) { // will crash the system if not in colon definition
     current_PROG = ct_prog_pop();
     dict_dump(0);
     return EXPECTING_ANY;
   }
-  if (strcmp(tok, "(") == 0){
+  if (strcmp(tok, "(") == 0) {
     return PS_COMMENT;
   }
-  
-  if (strcmp(tok, "\\") == 0){
+
+  if (strcmp(tok, "\\") == 0) {
     return BS_COMMENT;
   }
-  
+
   program_add(current_PROG, tok);
   return EXPECTING_ANY;
 }
 
 parser_state_t parse_ps_comment(parser_state_t state, char *tok) {
   logg("PS COMMENT", tok);
-  if (strcmp(tok,")")==0) {
+  if (strcmp(tok, ")") == 0) {
     return EXPECTING_ANY;
   }
   return PS_COMMENT;
@@ -186,12 +181,11 @@ parser_state_t parse_ps_comment(parser_state_t state, char *tok) {
 
 parser_state_t parse_bs_comment(parser_state_t state, char *tok) {
   logg("BS COMMENT", tok);
-  if (strcmp(tok, "\n")==0) {
+  if (strcmp(tok, "\n") == 0) {
     return EXPECTING_ANY;
   }
   return BS_COMMENT;
 }
-
 
 parser_state_t parse_colon(parser_state_t state, char *tok) {
   logg("COLON", tok);
@@ -217,7 +211,6 @@ typedef parser_state_t (*parse_func)(parser_state_t state, char *);
 typedef int (*cmpfunc)(const char *, const char *);
 
 static inline int cmpany(const char *s1, const char *s2) { return 0; }
-
 
 typedef struct parse_table_entry {
   char *tok;
@@ -250,11 +243,13 @@ static ptentry_t pftable[] = {{":", strcmp, parse_colon},
 /**
 
 */
-program_p parse(ftask_p task, char *source)
-{
+program_p parse(ftask_p task, char *source) {
   static const char *delim = " \t\n\r";
   state = EXPECTING_ANY; // entry no. 4 in the table (the "default")
+  current_PROG = program_create("Main");
 
+  printf("Program before parse:");
+  program_dump(current_PROG, task);
   /*
   for each token in the input look up the parse table entry corresponding to the
   current state (the entry no in the table) feed the current token to the
@@ -266,5 +261,7 @@ program_p parse(ftask_p task, char *source)
       state = pftable[state].f(state, tok);
     }
   }
+  printf("Program after parse:");
+  program_dump(current_PROG, task);
   return current_PROG;
 }
