@@ -108,7 +108,7 @@ void dict_dump(dict_p dp) {
   int i = 0;
   printf("\n---------------| DICT |--------------\n");
   dict_loop(dp, cb_dict_dump, &i);
-  printf("\n------------------------------------\n");
+  printf("------------------------------------\n");
 }
 
 void dict_add_entry(dict_p dp, dict_entry_p dep) {
@@ -126,8 +126,9 @@ void dict_add_entry(dict_p dp, dict_entry_p dep) {
   dp->ndep_array++;
   dp->dep_array[dp->ndep_array - 1] = dep;
   dp->dep_array = realloc(dp->dep_array, sizeof(dict_entry_p) * dp->ndep_array);
-
+#ifdef DEBUG
   dict_dump(dp);
+  #endif
 }
 
 dict_entry_p dict_entry_create(dict_p dp, char *name) {

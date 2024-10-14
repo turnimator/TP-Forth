@@ -4,7 +4,7 @@ VARIABLE prime_flag
 1 prime_flag ! \ Optimistic bet!
 mynum @ 2 ?DO
 mynum @ I MOD 0= IF
-0 prime_flag !
+0 prime_flag ! EXIT
 THEN
 LOOP ;
 : primes 2 ?DO
@@ -13,4 +13,4 @@ prime_flag @ IF
 CR I .
 THEN
 LOOP ;
-10000 primes
+

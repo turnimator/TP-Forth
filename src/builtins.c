@@ -471,7 +471,7 @@ void builtin_build_db() {
     builtin_add(">r", d_r);
     builtin_add("r>", r_d);
     add_custom_builtins();
-    builtin_db_dump();
+//    builtin_db_dump();
     index_names();
-    idx_builtins_dump();
+//    idx_builtins_dump();
 }

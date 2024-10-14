@@ -158,7 +158,9 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   if (strcmp(tok, ";") ==
       0) { // will crash the system if not in colon definition
     current_PROG = ct_prog_pop();
+    #ifdef DEBUG
     dict_dump(0);
+    #endif
     return EXPECTING_ANY;
   }
   if (strcmp(tok, "(") == 0) {
@@ -203,7 +205,9 @@ parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   current_PROG = de->prog;
   ct_prog_push(de->prog);
   dict_add_entry(0, de);
+  #ifdef DEBUG
   dict_dump(0);
+  #endif
   return EXPECTING_ANY;
 }
 
