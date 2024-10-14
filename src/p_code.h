@@ -31,6 +31,7 @@ typedef enum p_code_type {
   PCODE_ELSE = 9,
   PCODE_THEN =10,
   PCODE_EXIT = 11,
+  PCODE_RET = 12,
   PCODE_LAST
 
 } p_code_type_t;

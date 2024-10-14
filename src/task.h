@@ -27,8 +27,10 @@ typedef struct ftask {
   int d_top;
   int v_stack[S_STACK_SIZE];
   int v_top;
-  
+  p_code_p* r_stack[LOOP_STACK_SIZE];
+  int r_top;
   program_p program;
+  p_code_p *pcp; // Program counter pointer
   int loop_upper[LOOP_STACK_SIZE];
   int lu_top;
   int loop_lower[LOOP_STACK_SIZE];

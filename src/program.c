@@ -17,20 +17,20 @@
 /**
 Loop through the program, calling func for each p-code
 */
-void program_loop(program_p prog, void (*func)(program_p, p_code_p, ftask_p),
+void program_loop(program_p prog, void (*func)(program_p, p_code_p*, ftask_p),
                   ftask_p task) {
   for (int i = 0; i < prog->npcp_array; i++) {
-    func(prog, prog->pcp_array[i], task);
+    func(prog, prog->pcp_array+i, task);
   }
 }
 
-void program_dump_cb(program_p prog, p_code_p pcp, ftask_p task) {
+void program_dump_cb(program_p prog, p_code_p* pcpp, ftask_p task) {
   var_p v;
 
-  if (prog->pcp && pcp == *prog->pcp) {
+  if (pcpp==task->pcp) {
     printf(" ==>");
   }
-
+	p_code_p pcp = *pcpp;
   switch (pcp->type) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
@@ -99,9 +99,6 @@ program_p program_create(char *name) {
   prog->name = malloc(strlen(name));
   strcpy(prog->name, name);
   prog->npcp_array = 0;
-  prog->pcp = 0;
-  prog->r_top = 0;
-  //prog->r_stack[prog->r_top] = prog;
   return prog;
 }
 
@@ -110,12 +107,13 @@ void program_add_p_code(program_p prog, p_code_p pcp) {
 
   prog->npcp_array++;
   if (!prog->pcp_array) {
-    prog->pcp_array = malloc(sizeof(p_code_p) * prog->npcp_array);
+    prog->pcp_array = malloc(sizeof(p_code_p) * (prog->npcp_array+1));
   } else {
     prog->pcp_array =
-        realloc(prog->pcp_array, sizeof(p_code_p) * (prog->npcp_array));
+        realloc(prog->pcp_array, sizeof(p_code_p) * (prog->npcp_array+1));
   }
   prog->pcp_array[prog->npcp_array - 1] = pcp;
+  prog->pcp_array[prog->npcp_array] = 0;
 }
 
 void program_add(program_p prog, char *src) {

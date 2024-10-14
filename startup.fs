@@ -1,4 +1,4 @@
-: tst 4 0 DO
+: tst 2 0 DO
  I .
  LOOP
  ;

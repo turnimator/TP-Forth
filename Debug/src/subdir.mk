@@ -17,6 +17,20 @@ C_SRCS += \
 ../src/tpforth.c \
 ../src/variable.c 
 
+O_SRCS += \
+../src/builtins.o \
+../src/compiler.o \
+../src/custom.o \
+../src/dictionary.o \
+../src/logg.o \
+../src/p_code.o \
+../src/parser.o \
+../src/program.o \
+../src/runtime.o \
+../src/task.o \
+../src/tpforth.o \
+../src/variable.o 
+
 C_DEPS += \
 ./src/builtins.d \
 ./src/compiler.d \

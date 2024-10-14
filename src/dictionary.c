@@ -13,7 +13,6 @@
 
 #include "dictionary.h"
 
-#include "builtins.h"
 #include "logg.h"
 #include "p_code.h"
 #include "program.h"

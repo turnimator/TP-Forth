@@ -3,7 +3,7 @@ tpforth: tpforth.o variable.o task.o runtime.o program.o p_code.o parser.o logg.
 
 builtins.o : builtins.c
 	cc -c $< -o $@
-	
+
 compiler.o : compiler.c
 	cc -c $< -o $@
 
@@ -12,7 +12,7 @@ custom.o : custom.c
 
 dictionary.o : dictionary.c
 	cc -c $< -o $@
-	
+
 logg.o : logg.c
 	cc -c $< -o $@
 
@@ -30,11 +30,12 @@ runtime.o : runtime.c
 
 task.o : task.c
 	cc -c $< -o $@
-	
+
 tpforth.o : tpforth.c
 	cc -c $< -o $@
-	
+
 variable.o : variable.c
 	cc -c $< -o $@
-	
-	
+
+clean :
+	rm tpforth *.o
