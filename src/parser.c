@@ -251,8 +251,10 @@ program_p parse(ftask_p task, char *source) {
   
   current_PROG = program_create("MAIN");
   task->program = current_PROG;
+  #ifdef DEBUG
   printf("Program before parse:");
   program_dump(current_PROG, task);
+  #endif
   /*
   for each token in the input look up the parse table entry corresponding to the
   current state (the entry no in the table) feed the current token to the
@@ -264,7 +266,9 @@ program_p parse(ftask_p task, char *source) {
       state = pftable[state].f(state, tok);
     }
   }
+  #ifdef DEBUG
   printf("Program after parse:");
   program_dump(current_PROG, task);
+  #endif
   return current_PROG;
 }

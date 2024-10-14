@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-#define DEBUG
+//#define DEBUG
 
 #include "runtime.h"
 

@@ -6,7 +6,7 @@
  *
  */
 
-#define DEBUG
+//#define DEBUG
 
 #include "program.h"
 #include "logg.h"
