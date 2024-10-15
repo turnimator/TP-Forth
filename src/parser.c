@@ -36,7 +36,7 @@ static dict_entry_p de = 0; // Current colon definition
  */
 static void if_create() {
   ct_push(CT_IF, current_IF); // In case of a nested IF, tuck away the old
-  current_IF = p_code_ct_create(PCODE_IF); // and enter the new
+  current_IF = p_code_ct_create(PCODE_IF, "IF"); // and enter the new
   current_IF->val.l = 0;
   program_add_p_code(current_PROG, current_IF);
 }
@@ -44,7 +44,7 @@ static void if_create() {
 static void else_create() {
   current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
   ct_push(CT_IF, current_IF);
-  current_IF = p_code_ct_create(PCODE_ELSE); //
+  current_IF = p_code_ct_create(PCODE_ELSE, "ELSE"); //
   current_IF->val.l = 0;
   program_add_p_code(current_PROG, current_IF);
 }
@@ -62,7 +62,7 @@ static void then_create() {
   if (current_IF->val.l == 0) {
     current_IF->val.l = current_PROG->npcp_array;
   }
-  p_code_p pcode = p_code_ct_create(PCODE_THEN); //
+  p_code_p pcode = p_code_ct_create(PCODE_THEN, "THEN"); //
   pcode->val.l = current_PROG->npcp_array;
   program_add_p_code(current_PROG, pcode);
   current_IF = ct_pop(CT_IF);
@@ -74,7 +74,7 @@ static void then_create() {
 static void do_create() {
   logg("DO", "PUSH");
   ct_push(CT_DO, current_DO); // Must be popped on LOOP
-  current_DO = p_code_ct_create(PCODE_LOOP_DO);
+  current_DO = p_code_ct_create(PCODE_LOOP_DO, "DO");
   current_DO->val.l = current_PROG->npcp_array + 1;
   program_add_p_code(current_PROG, current_DO);
 }
@@ -86,7 +86,7 @@ static void loop_create() {
 
   logg("CREATE", "ENTER");
   p_code_p loop_end_code;
-  loop_end_code = p_code_ct_create(PCODE_LOOP_END);
+  loop_end_code = p_code_ct_create(PCODE_LOOP_END, "LOOP");
   loop_end_code->val.l = ijump;
 
   program_add_p_code(current_PROG, loop_end_code);
@@ -96,7 +96,7 @@ static void loop_create() {
 
 static void exit_create() {
   logg("EXIT", "");
-  p_code_p exit_code = p_code_ct_create(PCODE_EXIT);
+  p_code_p exit_code = p_code_ct_create(PCODE_EXIT, "EXIT");
   program_add_p_code(current_PROG, exit_code);
 }
 

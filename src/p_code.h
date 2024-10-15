@@ -31,7 +31,6 @@ typedef enum p_code_type {
   PCODE_ELSE = 9,
   PCODE_THEN =10,
   PCODE_EXIT = 11,
-  PCODE_RET = 12,
   PCODE_LAST
 
 } p_code_type_t;
@@ -45,7 +44,7 @@ typedef struct p_code {
 int isNumber(char *tok);
 
 p_code_p p_code_parse_word(char *);
-p_code_p p_code_ct_create(p_code_type_t);
+p_code_p p_code_ct_create(p_code_type_t, char*name);
 p_code_p p_code_create_variable(int);
 void p_code_delete(p_code_p pc);
 

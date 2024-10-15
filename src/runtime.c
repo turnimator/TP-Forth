@@ -51,9 +51,9 @@ static inline void ef_variable(program_p prog, ftask_p task) {
 
 /**
 Look up the dictionary entry.
-If found, run its program.
+If found, run its program. /// WRONG!!! NO LOOKUP!!
  */
-static inline void ef_dict_entry(program_p prog, ftask_p task) {
+static inline void ef_dict_entry_old(program_p prog, ftask_p task) {
   logg(prog->name, "");
   p_code_p pcp = *task->pcp;
   dict_entry_p sub = 0;
@@ -69,6 +69,19 @@ static inline void ef_dict_entry(program_p prog, ftask_p task) {
   task->pcp = r_pop(task);
   task->pcp++;
 }
+
+static inline void ef_dict_entry(program_p prog, ftask_p task) {
+  logg(prog->name, "");
+  p_code_p pcp = *task->pcp;
+ 
+  r_push(task, task->pcp);
+  // program_dump(prog,task);
+
+  run_prog(task, pcp->val.prog);
+  task->pcp = r_pop(task);
+  task->pcp++;
+}
+
 
 /**
 a

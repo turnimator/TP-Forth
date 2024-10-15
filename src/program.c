@@ -6,7 +6,7 @@
  *
  */
 
-//#define DEBUG
+#define DEBUG
 
 #include "program.h"
 #include "logg.h"
@@ -17,41 +17,45 @@
 /**
 Loop through the program, calling func for each p-code
 */
-void program_loop(program_p prog, void (*func)(program_p, p_code_p*, ftask_p),
+void program_loop(program_p prog, void (*func)(program_p, p_code_p *, ftask_p),
                   ftask_p task) {
   for (int i = 0; i < prog->npcp_array; i++) {
-    func(prog, prog->pcp_array+i, task);
+    func(prog, prog->pcp_array + i, task);
   }
 }
 
-void program_dump_cb(program_p prog, p_code_p* pcpp, ftask_p task) {
+void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
   var_p v;
 
-  if (pcpp==task->pcp) {
+  if (pcpp == task->pcp) {
     printf(" ==>");
   }
-	p_code_p pcp = *pcpp;
+  p_code_p pcp = *pcpp;
   switch (pcp->type) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
-    return;
+    break;
+    ;
   case PCODE_BUILTIN:
     printf("BIN:%s ", pcp->name);
-    return;
+    break;
+    ;
   case PCODE_VARIABLE:
     v = variable_get(pcp->val.var_idx);
     printf("VAR:(%s=%s) ", pcp->name, vartype_string(v));
-    return;
+    break;
+    ;
   case PCODE_DICT_ENTRY:
     printf("PROG:%s ", pcp->name);
     program_dump(pcp->val.prog, task);
-    return;
+    break;
+    ;
   case PCODE_IF:
     printf("IF:%ld ", pcp->val.l);
     return;
   case PCODE_ELSE:
     printf("ELSE:%ld ", pcp->val.l);
-    return;
+    break;
   case PCODE_THEN:
     printf("THEN:%ld ", pcp->val.l);
     return;
@@ -60,22 +64,22 @@ void program_dump_cb(program_p prog, p_code_p* pcpp, ftask_p task) {
     return;
   case PCODE_LOOP_END:
     printf("LOOP:%ld ", pcp->val.l);
-    return;
+    break;
   case PCODE_I:
     printf("I:%s ", pcp->name);
-    return;
     break;
   case PCODE_EXIT:
     printf("EXIT:%s ", pcp->name);
-    return;
+    break;
   case PCODE_LAST:
     printf("END ");
+    break;
   default:
     printf("?");
     return;
     break;
   }
-  printf("\nShould never arrive here\n");
+  printf("\n");
 }
 
 void program_dump(program_p progp, ftask_p task) {
@@ -94,7 +98,7 @@ void program_delete(program_p prog) {
 }
 
 program_p program_create(char *name) {
-	logg("", name);
+  logg("", name);
   program_p prog = malloc(sizeof(program_p));
   prog->name = malloc(strlen(name));
   strcpy(prog->name, name);
@@ -107,10 +111,10 @@ void program_add_p_code(program_p prog, p_code_p pcp) {
 
   prog->npcp_array++;
   if (!prog->pcp_array) {
-    prog->pcp_array = malloc(sizeof(p_code_p) * (prog->npcp_array+1));
+    prog->pcp_array = malloc(sizeof(p_code_p) * (prog->npcp_array + 1));
   } else {
     prog->pcp_array =
-        realloc(prog->pcp_array, sizeof(p_code_p) * (prog->npcp_array+1));
+        realloc(prog->pcp_array, sizeof(p_code_p) * (prog->npcp_array + 1));
   }
   prog->pcp_array[prog->npcp_array - 1] = pcp;
   prog->pcp_array[prog->npcp_array] = 0;

@@ -10,6 +10,8 @@
 #include "program.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h> 
+
 var_p *vartable = 0;
 int n_vartable = 0;
 
@@ -65,8 +67,16 @@ void variable_dump() {
   printf("---------------------------------\n");
 }
 
-var_p variable_get(int idx) { return vartable[idx]; }
-int variable_lookup(char *name) { return vt_loop(vt_lookup_cb, name); }
+var_p variable_get(int idx) 
+{ 
+	assert(idx<n_vartable);
+	return vartable[idx]; 
+}
+
+int variable_lookup(char *name) 
+{ 
+	return vt_loop(vt_lookup_cb, name); 
+}
 
 static var_p var_create(char *name) {
   var_p rv = malloc(sizeof(var_t));

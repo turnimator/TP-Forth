@@ -58,17 +58,20 @@ static p_code_p p_code_create_primitive(idx_builtin_p ip) {
 static p_code_p p_code_create_dict_entry(dict_entry_p dep) {
   p_code_p rv = p_code_create_empty(dep->name);
   rv->type = PCODE_DICT_ENTRY;
-  rv->val.prog = dep->prog;
+  rv->val.prog = dep->prog; 
   return rv;
 }
 
-p_code_p p_code_ct_create(p_code_type_t pctyp)
+/**
+*/
+p_code_p p_code_ct_create(p_code_type_t pctyp, char*name)
 {
-	p_code_p rv = p_code_create_empty("CTL");
+	p_code_p rv = p_code_create_empty(name);
 	rv->type=pctyp;
 	return rv;
 }
 
+/// BUG? Check this. Variable lookup should only happen at compile time.
 p_code_p p_code_create_variable(int idx)
 {
 	var_p v = variable_get(idx);
