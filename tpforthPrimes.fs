@@ -1,0 +1,7 @@
+VARIABLE NUM
+: isPrime 2 DO 
+	NUM I MOD 0 = IF 0 EXIT THEN
+	LOOP
+	1
+	;
+	 
