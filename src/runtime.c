@@ -21,6 +21,9 @@ extern int STEP;
 typedef void (*cbp_exec_func)(program_p, ftask_p);
 static cbp_exec_func farray[];
 
+
+long offs(program_p prog, p_code_p *pc) { return pc - prog->pcp_array; }
+
 static void ef_error(program_p prog, ftask_p task) {
   logg(prog->name, "P-CODE ERROR");
   task->pcp = prog->pcp_array + prog->npcp_array;
@@ -97,8 +100,6 @@ static void ef_do(program_p prog, ftask_p task) {
   r_push(task, task->pcp); // point to next code
 }
 
-long offs(program_p prog, p_code_p *pc) { return pc - prog->pcp_array; }
-
 /**
 jump to code at DO
 Using macros for speed here
@@ -151,9 +152,8 @@ static inline void ef_then(program_p prog, ftask_p task) {
 }
 
 static void ef_exit(program_p prog, ftask_p task) {
-  logg("Program before", prog->name);
+  logg("Jump to end of", prog->name);
   task->pcp = prog->pcp_array + prog->npcp_array;
-  logg("Program after", prog->name);
 }
 
 static inline void ef_last_code(program_p prog, ftask_p task) {
@@ -214,7 +214,7 @@ TODO BREAK ON ;
  */
 static int program_exec_loop(program_p prog, cbp_exec_func func, ftask_p task) {
   task->pcp = prog->pcp_array;
-  while (task->pcp < prog->pcp_array + prog->npcp_array) {
+  while (task->pcp < (prog->pcp_array + prog->npcp_array)) {
       func(prog, task);
   }
   return 0;
