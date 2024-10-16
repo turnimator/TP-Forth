@@ -119,6 +119,8 @@ var_p variable_add(char *name) {
   }
   var_p rv = var_create(name);
   vt_add(rv);
+  #ifdef DEBUG
   variable_dump();
+  #endif
   return rv;
 }

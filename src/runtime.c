@@ -149,14 +149,14 @@ static inline void ef_if(program_p prog, ftask_p task) {
   } else {
     // printf("IF CODE FALSE, SKIP TO PAST ELSE OR THEN(%p)\n",
     // pcp->val.jump_to);
-    task->pcp = prog->pcp_array + pcp->val.l + 1;
+    task->pcp +=  pcp->val.l;
   }
 }
 
 static inline void ef_else(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
   // printf("ELSE CAUGHT IT, SKIP TO THEN\n");
-  task->pcp = prog->pcp_array + pcp->val.l;
+  task->pcp += pcp->val.l;
 }
 
 static inline void ef_then(program_p prog, ftask_p task) {

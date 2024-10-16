@@ -37,30 +37,42 @@ static dict_entry_p de = 0; // Current colon definition
 static void if_create() {
   ct_push(CT_IF, current_IF); // In case of a nested IF, tuck away the old
   current_IF = p_code_ct_create(PCODE_IF, "IF"); // and enter the new
-  current_IF->val.l = 0;
+  current_IF->val.l = current_PROG->npcp_array; // Note where the IF is
   program_add_p_code(current_PROG, current_IF);
 }
 
 static void else_create() {
-  current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
+	
+ // current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
   ct_push(CT_IF, current_IF);
   current_IF = p_code_ct_create(PCODE_ELSE, "ELSE"); //
-  current_IF->val.l = 0;
+  current_IF->val.l =  current_PROG->npcp_array; // Mark where we are in the stream
   program_add_p_code(current_PROG, current_IF);
 }
 
 /**
 Look at the compile time stack.
 If the current is ELSE, we must ct_pop and fixup before handling THEN.
+// NB: RELATIVE JUMPS:
+// Jump to THEN_offset from IF_offset THEN_offset - IF_offset
+// JUMP to ELSE_offset from IF_offset ELSE_offset - IF_offset
+// JUMP to THEN_offset from ELSE_offset THEN_offset - IF_offset
+// ALL OF this has to be done when encountering THEN
 **/
 static void then_create() {
+	long THEN_offset = current_PROG->npcp_array;
+	long ELSE_offset = 0;
+	long IF_offset = 0;
   if (current_IF->type == PCODE_ELSE) {
-    current_IF->val.l = current_PROG->npcp_array;
+	ELSE_offset = current_IF->val.l;
+    current_IF->val.l = THEN_offset - ELSE_offset;
     current_IF = ct_pop(CT_IF);
   }
-  /* If we had an IF ELSE THEN, we are now on the IF THEN part*/
-  if (current_IF->val.l == 0) {
-    current_IF->val.l = current_PROG->npcp_array;
+  /* If we had an IF ELSE THEN, we are now on the IF THEN part
+  update IF*/
+  if (ELSE_offset == 0) {
+	IF_offset = current_IF->val.l;
+    current_IF->val.l = THEN_offset - IF_offset;
   }
   p_code_p pcode = p_code_ct_create(PCODE_THEN, "THEN"); //
   pcode->val.l = current_PROG->npcp_array;
@@ -115,7 +127,9 @@ static parser_state_t parse_variable_name(parser_state_t state, char *name) {
   printf("adding variable %s\n", name);
 #endif
   var_p vp = variable_add(name);
+#ifdef DEBUG
   printf("var_p index=%d", vp->vt_idx);
+#endif
   return EXPECTING_ANY;
 }
 

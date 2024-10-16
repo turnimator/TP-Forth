@@ -1,5 +1,11 @@
-VARIABLE atle
-VARIABLE per
+VARIABLE NUM
+: isPrime
+	NUM SWAP ! 
+	NUM @ 1 - 2 DO 
+	NUM @ I MOD 0 = IF 0 EXIT THEN
+	LOOP
+	1
+	;
 
-atle 999 !
-per 123 !
+: tst 20 2 DO I isPrime IF I . THEN LOOP ;
+	 

@@ -56,7 +56,7 @@ dict_entry_p dict_lookup(dict_p dp, char *key) {
 }
 
 static int cb_dict_dump(dict_entry_p dep, void *p) {
-  logg(dep->name, dep->prog->name);
+  printf("%s:%s==>", dep->name, dep->prog->name);
 
   for (int i = 0; i < dep->prog->npcp_array; i++) {
 
