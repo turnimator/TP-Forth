@@ -14,3 +14,20 @@ VARIABLE NUM
 However, it's full of bugs, and not usable as a Forth yet.
 I've only put it up here for people to examine the design
 That said, it's now a decent HP-like calculator
+
+: line 79 0 DO
+ I .
+ LOOP 
+ ;
+ 
+ : page 24 0 DO
+   line CR
+   LOOP
+   ;
+  : pages 0 DO
+   I . CR
+   page
+   LOOP
+   ;
+   
+     
