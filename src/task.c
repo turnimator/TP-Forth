@@ -13,7 +13,7 @@ ftask_p ftask_create(char *name) {
   ftask_p rv = malloc(sizeof(ftask_t));
   rv->program = 0;
   rv->d_top = 0;
-  rv->v_top = 0;
+  //rv->v_top = 0;
   rv->lu_top = 0;
   rv->ll_top = 0;
   return rv;

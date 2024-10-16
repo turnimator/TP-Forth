@@ -114,7 +114,8 @@ static parser_state_t parse_variable_name(parser_state_t state, char *name) {
 #ifdef DEBUG
   printf("adding variable %s\n", name);
 #endif
-  variable_add(name);
+  var_p vp = variable_add(name);
+  printf("var_p index=%d", vp->vt_idx);
   return EXPECTING_ANY;
 }
 
@@ -158,9 +159,9 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   if (strcmp(tok, ";") ==
       0) { // will crash the system if not in colon definition
     current_PROG = ct_prog_pop();
-    #ifdef DEBUG
+#ifdef DEBUG
     dict_dump(0);
-    #endif
+#endif
     return EXPECTING_ANY;
   }
   if (strcmp(tok, "(") == 0) {
@@ -205,9 +206,9 @@ parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   current_PROG = de->prog;
   ct_prog_push(de->prog);
   dict_add_entry(0, de);
-  #ifdef DEBUG
+#ifdef DEBUG
   dict_dump(0);
-  #endif
+#endif
   return EXPECTING_ANY;
 }
 
@@ -252,13 +253,13 @@ static ptentry_t pftable[] = {{":", strcmp, parse_colon},
 program_p parse(ftask_p task, char *source) {
   static const char *delim = " \t\n\r";
   state = EXPECTING_ANY; // entry no. 4 in the table (the "default")
-  
+
   current_PROG = program_create("MAIN");
   task->program = current_PROG;
-  #ifdef DEBUG
+#ifdef DEBUG
   printf("Program before parse:");
   program_dump(current_PROG, task);
-  #endif
+#endif
   /*
   for each token in the input look up the parse table entry corresponding to the
   current state (the entry no in the table) feed the current token to the
@@ -270,9 +271,9 @@ program_p parse(ftask_p task, char *source) {
       state = pftable[state].f(state, tok);
     }
   }
-  #ifdef DEBUG
+#ifdef DEBUG
   printf("Program after parse:");
   program_dump(current_PROG, task);
-  #endif
+#endif
   return current_PROG;
 }

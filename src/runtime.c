@@ -45,7 +45,7 @@ static inline void ef_primitive(program_p prog, ftask_p task) {
 
 static inline void ef_variable(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
-  v_push(task, pcp->val.var_idx);
+  d_push(task, pcp->val.var_idx);
   task->pcp++;
 }
 

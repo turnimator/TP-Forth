@@ -25,8 +25,8 @@ typedef void (*funcptr)(ftask_p);
 typedef struct ftask {
   long d_stack[D_STACK_SIZE];
   int d_top;
-  int v_stack[S_STACK_SIZE];
-  int v_top;
+  //int v_stack[S_STACK_SIZE];
+  //int v_top;
   p_code_p* r_stack[LOOP_STACK_SIZE];
   int r_top;
   program_p program;

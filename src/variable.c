@@ -69,8 +69,12 @@ void variable_dump() {
 
 var_p variable_get(int idx) 
 { 
-	assert(idx<n_vartable);
-	return vartable[idx]; 
+	if(idx<n_vartable){
+	return vartable[idx];
+	} else {
+		printf("ERROR: VARIABLE INDEX %d OUT OF RANGE", idx);
+	}
+	return 0;
 }
 
 int variable_lookup(char *name) 
@@ -108,6 +112,11 @@ void variable_does(var_p v, program_p prog) {
 
 var_p variable_add(char *name) {
   logg("NAME", "VARTABLE BEFORE:");
+  int idx = variable_lookup(name);
+  if (idx != -1){
+	printf("VARIABLE %s redefined", name);
+	return vartable[idx];
+  }
   var_p rv = var_create(name);
   vt_add(rv);
   variable_dump();

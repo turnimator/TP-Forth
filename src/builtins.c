@@ -133,7 +133,7 @@ void d_pock(ftask_p task, int num, long val) {
 }
 
 long d_tos(ftask_p task) { return task->d_stack[task->d_top - 1]; }
-
+/*
 void v_push(ftask_p task, int i) {
   task->v_stack[task->v_top] = i;
   task->v_top++;
@@ -154,7 +154,7 @@ int v_pop(ftask_p task) {
 }
 
 inline int v_tos(ftask_p task) { return task->v_stack[task->v_top - 1]; }
-
+*/
 static inline void d_gt(ftask_p task) {
   long l1 = d_pop(task);
   long l2 = d_pop(task);
@@ -290,9 +290,10 @@ static inline void d_drop2(ftask_p task) { task->d_top -= 2; }
 /**
 Store value on data stack in variable on variable stack
  */
-static void d_store_val(ftask_p task) {
+static void d_variable_store(ftask_p task) {
   long val = d_pop(task);
-  var_p v = variable_get(val);
+  long idx = d_pop(task);
+  var_p v = variable_get(idx);
   if (!v) {
     printf("Variable not found!\n");
   } else {
@@ -300,17 +301,21 @@ static void d_store_val(ftask_p task) {
   }
 }
 
-static void d_load_val(ftask_p task) {
+static void d_variable_load(ftask_p task) {
   var_p v = variable_get(d_pop(task));
   if (!v) {
-    printf("Variable not found!\n");
+    printf("\nVariable not found!\n");
   } else {
     d_push(task, v->val.l);
   }
 }
 
+static void v_dump(ftask_p task){
+	variable_dump();
+}
+
 static void s_dot(ftask_p task) {
-  int idx = v_pop(task);
+  int idx = d_pop(task);
   var_p v = variable_get(idx);
   printf("%s %ld", v->name, v->val.l);
 }
@@ -444,11 +449,12 @@ void builtin_build_db() {
   builtin_add("TRUE", d_true);
   builtin_add("FALSE", d_false);
   builtin_add("I", d_i);
-  builtin_add("!", d_store_val);
-  builtin_add("@", d_load_val);
+  builtin_add("!", d_variable_store);
+  builtin_add("@", d_variable_load);
   builtin_add("STEP", d_step);
   builtin_add("EXIT", f_exit);
   builtin_add("DICT", f_dict_dump);
+  builtin_add("VARS", v_dump);
   builtin_add(">r", d_r);
   builtin_add("r>", r_d);
   add_custom_builtins();
