@@ -6,6 +6,3 @@ VARIABLE NUM
 	LOOP
 	1
 	;
-
-: tst 20 2 DO I isPrime IF I . THEN LOOP ;
-	 

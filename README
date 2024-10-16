@@ -1,3 +1,16 @@
 TP-FORTH is just an experiment
-It's full of bugs, and not usable yet.
+
+It can tell you whether of not a number is a Prime:
+
+VARIABLE NUM
+: isPrime
+	NUM SWAP ! 
+	NUM @ 1 - 2 DO 
+	NUM @ I MOD 0 = IF 0 EXIT THEN
+	LOOP
+	1
+	;
+ 
+However, it's full of bugs, and not usable as a Forth yet.
 I've only put it up here for people to examine the design
+That said, it's now a decent HP-like calculator
