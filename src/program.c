@@ -77,9 +77,9 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
 }
 
 void program_dump(program_p progp, ftask_p task) {
-  printf("\n----------------| %s |-----------------\n", progp->name);
+  printf("----------------| %s |-----------------\n", progp->name);
   program_loop(progp, program_dump_cb, task);
-  printf("\n----------------------------------------\n\n");
+  printf("----------------------------------------");
 }
 
 void program_delete(program_p prog) {

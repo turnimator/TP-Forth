@@ -10,3 +10,4 @@ VARIABLE NUM
 	;
 	
 3 isPrime .
+444 .

@@ -2,3 +2,4 @@ TODO
 
 On program_dump, show PC -- FIXED
 Make sure ; terminates the dictionary definition. Currently, it gets tucked onto the end.
+Insert an END_OF_PROGRAM marker ad the end of a program.
