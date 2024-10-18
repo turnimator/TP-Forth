@@ -35,18 +35,36 @@ static void bdb_add(builtin_p bip) {
   DB_builtins = realloc(DB_builtins, sizeof(builtin_p *) * N_builtins);
   DB_builtins[bip->op] = bip;
 }
-
+//// RETURN (LOOPS)
 void r_push(ftask_p task, p_code_p *p) {
   task->r_stack[task->r_top] = p;
   task->r_top++;
 }
 
-p_code_p *r_pop(ftask_p task) {
+p_code_p* r_pop(ftask_p task) {
   task->r_top--;
   return task->r_stack[task->r_top];
 }
 
-p_code_p *r_tos(ftask_p task) { return task->r_stack[task->r_top - 1]; }
+p_code_p *r_tos(ftask_p task) {
+  return task->r_stack[task->r_top - 1];
+}
+
+
+///// PROGRAM (SUBROUTINES=DICT_ENTRIES=COLON DEFS)///////
+program_p prog_pop(ftask_p task) {
+  task->prog_top--;
+  return task->prog_stack[task->prog_top];
+}
+
+program_p prog_tos(ftask_p task) {
+  return task->prog_stack[task->prog_top - 1];
+}
+
+void prog_push(ftask_p task, program_p p) {
+  task->prog_stack[task->prog_top] = p;
+  task->prog_top++;
+}
 
 /**
 Create a builtin
@@ -243,7 +261,7 @@ static void d_div(ftask_p task) {
 static void d_i(ftask_p task) {}
 
 static void d_dot(ftask_p task) {
-  if (task->d_top < 0) {
+  if (task->d_top <= 0) {
     printf("Stack Underflow");
     printf(" -- press x to exit");
     if (getchar() == 'x') {
@@ -310,9 +328,7 @@ static void d_variable_load(ftask_p task) {
   }
 }
 
-static void v_dump(ftask_p task){
-	variable_dump();
-}
+static void v_dump(ftask_p task) { variable_dump(); }
 
 static void s_dot(ftask_p task) {
   int idx = d_pop(task);
@@ -344,7 +360,7 @@ static void d_r(ftask_p task) { r_push(task, (p_code_p *)d_pop(task)); }
 static void r_d(ftask_p task) { d_push(task, (long)r_pop(task)); }
 
 inline void r_fetch(ftask_p task) {
-  d_push(task, (long)task->r_stack[task->r_top - 1]);
+  d_push(task, (long)task->prog_stack[task->prog_top - 1]);
 }
 
 ///////////////////////////////////

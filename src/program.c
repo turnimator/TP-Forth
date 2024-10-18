@@ -35,21 +35,16 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
     break;
-    ;
   case PCODE_BUILTIN:
     printf("BIN:%s ", pcp->name);
     break;
-    ;
   case PCODE_VARIABLE:
     v = variable_get(pcp->val.var_idx);
     printf("VAR:(%s=%s) ", pcp->name, vartype_string(v));
     break;
-    ;
   case PCODE_DICT_ENTRY:
     printf("PROG:%s ", pcp->name);
-    program_dump(pcp->val.prog, task);
     break;
-    ;
   case PCODE_IF:
     printf("IF:%ld ", pcp->val.l);
     return;
@@ -61,7 +56,7 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
     return;
   case PCODE_LOOP_DO:
     printf("DO:%ld ", pcp->val.l);
-    return;
+    break;
   case PCODE_LOOP_END:
     printf("LOOP:%ld ", pcp->val.l);
     break;
@@ -75,8 +70,7 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
     printf("END ");
     break;
   default:
-    printf("?");
-    return;
+    printf("  ? ");
     break;
   }
   printf("\n");
@@ -121,7 +115,7 @@ void program_add_p_code(program_p prog, p_code_p pcp) {
 }
 
 void program_add(program_p prog, char *src) {
-  p_code_p pc = p_code_parse_word(src);
+  p_code_p pc = p_code_compile_word(src);
   if (!pc) {
     printf("\nprogram_add(%s) failed \n", src);
     return;

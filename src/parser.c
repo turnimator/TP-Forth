@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-// #define DEBUG
+//#define DEBUG
 
 #include "parser.h"
 
@@ -37,16 +37,17 @@ static dict_entry_p de = 0; // Current colon definition
 static void if_create() {
   ct_push(CT_IF, current_IF); // In case of a nested IF, tuck away the old
   current_IF = p_code_ct_create(PCODE_IF, "IF"); // and enter the new
-  current_IF->val.l = current_PROG->npcp_array; // Note where the IF is
+  current_IF->val.l = current_PROG->npcp_array;  // Note where the IF is
   program_add_p_code(current_PROG, current_IF);
 }
 
 static void else_create() {
-	
- // current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
+
+  // current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
   ct_push(CT_IF, current_IF);
   current_IF = p_code_ct_create(PCODE_ELSE, "ELSE"); //
-  current_IF->val.l =  current_PROG->npcp_array; // Mark where we are in the stream
+  current_IF->val.l =
+      current_PROG->npcp_array; // Mark where we are in the stream
   program_add_p_code(current_PROG, current_IF);
 }
 
@@ -60,18 +61,18 @@ If the current is ELSE, we must ct_pop and fixup before handling THEN.
 // ALL OF this has to be done when encountering THEN
 **/
 static void then_create() {
-	long THEN_offset = current_PROG->npcp_array;
-	long ELSE_offset = 0;
-	long IF_offset = 0;
+  long THEN_offset = current_PROG->npcp_array;
+  long ELSE_offset = 0;
+  long IF_offset = 0;
   if (current_IF->type == PCODE_ELSE) {
-	ELSE_offset = current_IF->val.l;
+    ELSE_offset = current_IF->val.l;
     current_IF->val.l = THEN_offset - ELSE_offset;
     current_IF = ct_pop(CT_IF);
   }
   /* If we had an IF ELSE THEN, we are now on the IF THEN part
   update IF*/
   if (ELSE_offset == 0) {
-	IF_offset = current_IF->val.l;
+    IF_offset = current_IF->val.l;
     current_IF->val.l = THEN_offset - IF_offset;
   }
   p_code_p pcode = p_code_ct_create(PCODE_THEN, "THEN"); //
@@ -93,14 +94,11 @@ static void do_create() {
 
 static void loop_create() {
   int ijump;
-
   ijump = current_DO->val.l;
-
   logg("CREATE", "ENTER");
   p_code_p loop_end_code;
   loop_end_code = p_code_ct_create(PCODE_LOOP_END, "LOOP");
   loop_end_code->val.l = ijump;
-
   program_add_p_code(current_PROG, loop_end_code);
   current_DO = ct_pop(CT_DO); // POP back the old loop
   logg("LOOP", "POP");
@@ -174,7 +172,7 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
       0) { // will crash the system if not in colon definition
     current_PROG = ct_prog_pop();
 #ifdef DEBUG
-    dict_dump(0);
+    // dict_dump(0);
 #endif
     return EXPECTING_ANY;
   }
@@ -217,11 +215,12 @@ The action is performed by the caller
 parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   logg("COLON NAME", tok);
   de = dict_entry_create(0, tok);
+  ct_prog_push(current_PROG);
   current_PROG = de->prog;
-  ct_prog_push(de->prog);
+  
   dict_add_entry(0, de);
 #ifdef DEBUG
-  dict_dump(0);
+  //(0);
 #endif
   return EXPECTING_ANY;
 }

@@ -10,7 +10,6 @@
 #include "runtime.h"
 
 #include "builtins.h"
-#include "dictionary.h"
 #include "logg.h"
 #include "p_code.h"
 #include "program.h"
@@ -20,7 +19,6 @@ extern int STEP;
 
 typedef void (*cbp_exec_func)(program_p, ftask_p);
 static cbp_exec_func farray[];
-
 
 long offs(program_p prog, p_code_p *pc) { return pc - prog->pcp_array; }
 
@@ -49,39 +47,16 @@ static inline void ef_variable(program_p prog, ftask_p task) {
   task->pcp++;
 }
 
-/**
-Look up the dictionary entry.
-If found, run its program. /// WRONG!!! NO LOOKUP!!
- */
-static inline void ef_dict_entry_old(program_p prog, ftask_p task) {
-  logg(prog->name, "");
-  p_code_p pcp = *task->pcp;
-  dict_entry_p sub = 0;
-  sub = dict_lookup(0, pcp->name);
-  if (!sub) {
-    printf("\nEXEC: %s dict_lookup failed!", pcp->name);
-    task->pcp++;
-  }
-  r_push(task, task->pcp);
-  // program_dump(prog,task);
-
-  run_prog(task, sub->prog);
-  task->pcp = r_pop(task);
-  task->pcp++;
-}
-
 static inline void ef_dict_entry(program_p prog, ftask_p task) {
   logg(prog->name, "");
   p_code_p pcp = *task->pcp;
- 
-  r_push(task, task->pcp);
+  r_push(task, task->pcp + 1);
   // program_dump(prog,task);
-
+  prog_push(task, task->program);
   run_prog(task, pcp->val.prog);
-  task->pcp = r_pop(task);
-  task->pcp++;
+  task->program = prog_pop(task);
+  task->pcp = r_pop(task) + 1;
 }
-
 
 /**
 a
@@ -128,7 +103,7 @@ static inline void ef_loop_end(program_p prog, ftask_p task) {
     ll_pop(task); // Get our old values back in case of nested loops
     lu_pop(task);
     task->pcp++;
-    r_pop(task);
+    prog_pop(task);
     return;
   }
 #ifdef DEBUG
@@ -149,7 +124,7 @@ static inline void ef_if(program_p prog, ftask_p task) {
   } else {
     // printf("IF CODE FALSE, SKIP TO PAST ELSE OR THEN(%p)\n",
     // pcp->val.jump_to);
-    task->pcp +=  pcp->val.l;
+    task->pcp += pcp->val.l;
   }
 }
 
@@ -165,7 +140,7 @@ static inline void ef_then(program_p prog, ftask_p task) {
 }
 
 static void ef_exit(program_p prog, ftask_p task) {
-  logg("Jump to end of", prog->name);
+  loggssn("Jump to end of", prog->name, prog->npcp_array);
   task->pcp = prog->pcp_array + prog->npcp_array;
 }
 
@@ -213,6 +188,7 @@ static void cb_program_exec_word(program_p prog, ftask_p task) {
   if (STEP) {
     d_stack_dump(task);
     program_dump(prog, task);
+    d_stack_dump(task);
     printf("\n...");
     if (getchar() == 'x') {
       STEP = 0;
@@ -228,7 +204,7 @@ TODO BREAK ON ;
 static int program_exec_loop(program_p prog, cbp_exec_func func, ftask_p task) {
   task->pcp = prog->pcp_array;
   while (task->pcp < (prog->pcp_array + prog->npcp_array)) {
-      func(prog, task);
+    func(prog, task);
   }
   return 0;
 }

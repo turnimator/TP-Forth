@@ -43,7 +43,7 @@ typedef struct p_code {
 
 int isNumber(char *tok);
 
-p_code_p p_code_parse_word(char *);
+p_code_p p_code_compile_word(char *);
 p_code_p p_code_ct_create(p_code_type_t, char*name);
 p_code_p p_code_create_variable(int);
 void p_code_delete(p_code_p pc);

@@ -10,8 +10,10 @@
 #define LOGG_H_
 #ifdef DEBUG
 #define logg(a,b) printf("%s: %s( \"%s\" )\n", __func__, a, b)
+#define loggssn(s1,s2,n) printf("%s: %s(%s)=%d", __func__, s1,s2, n)
 #else
 #define logg(a,b) //
+#define loggssn(s1,s2,n) //
 #endif
 
 #endif /* LOGG_H_ */

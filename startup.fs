@@ -1,17 +1,12 @@
+VARIABLE NUM
 
-: line 79 0 DO
- I .
- LOOP 
- ;
- 
- : page 24 0 DO
-   line CR
-   LOOP
-   ;
-  : pages 0 DO
-   I . CR
-   page
-   LOOP
-   ;
-   
-   
+: isPrime 
+	NUM SWAP !
+	NUM @ 2 DO 
+		NUM @ I MOD 0 = IF 0 0 . EXIT THEN
+	LOOP
+	1 .
+	1
+	;
+	
+3 isPrime .
