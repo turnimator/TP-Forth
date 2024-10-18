@@ -1,0 +1,4 @@
+TODO
+
+On program_dump, show PC
+Make sure ; terminates the dictionary definition. Currently, it gets tucked onto the end.
