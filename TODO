@@ -1,4 +1,4 @@
 TODO
 
-On program_dump, show PC
+On program_dump, show PC -- FIXED
 Make sure ; terminates the dictionary definition. Currently, it gets tucked onto the end.
