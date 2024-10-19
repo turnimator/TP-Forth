@@ -1,13 +1,8 @@
-VARIABLE NUM
+: tst CR 1 . 2 . 3 . CR ;
 
-: isPrime 
-	NUM SWAP !
-	NUM @ 2 DO 
-		NUM @ I MOD 0 = IF 0 0 . EXIT THEN
-	LOOP
-	1 .
-	1
-	;
-	
-3 isPrime .
-444 .
+DEFER tst
+EXEC
+DEFER tst
+EXEC
+50 10 DO I . LOOP
+

@@ -25,7 +25,8 @@ typedef enum parser_state {
     PS_COMMENT =6,
     BS_COMMENT = 7,
     EXPECTING_ANY = 8,
-    PS_ERROR = 9
+    PS_ERROR = 9,
+    STRING_EXPECTING_QUOTE=10
 } parser_state_t;
 
 

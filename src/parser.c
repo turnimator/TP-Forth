@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-//#define DEBUG
+#define DEBUG
 
 #include "parser.h"
 
@@ -110,6 +110,12 @@ static void exit_create() {
   program_add_p_code(current_PROG, exit_code);
 }
 
+static void string_create(char *s) {
+  p_code_p ps = p_code_compile_word(s);
+  program_add_p_code(current_PROG, ps);
+  program_dump(current_PROG, 0);
+}
+
 static parser_state_t parse_variable(parser_state_t state, char *name) {
   logg("VARIABLE", name);
   return VARIABLE_EXPECTING_NAME;
@@ -131,11 +137,17 @@ static parser_state_t parse_variable_name(parser_state_t state, char *name) {
   return EXPECTING_ANY;
 }
 
+char string_buffer[1024];
+
 /**
 ALL ACTIONS MUST BE PERFORMED HERE
 */
 parser_state_t parse_word(parser_state_t state, char *tok) {
   logg("WORD", tok);
+  if (tok[0] == '\"') {
+	strcpy(string_buffer, tok);
+    return STRING_EXPECTING_QUOTE;
+  }
   if (strcmp(tok, ":") == 0) {
     return COLON_EXPECTING_NAME;
   }
@@ -217,7 +229,7 @@ parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   de = dict_entry_create(0, tok);
   ct_prog_push(current_PROG);
   current_PROG = de->prog;
-  
+
   dict_add_entry(0, de);
 #ifdef DEBUG
   //(0);
@@ -225,6 +237,24 @@ parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   return EXPECTING_ANY;
 }
 
+parser_state_t parse_error(parser_state_t state, char *tok){
+	printf("PARSE ERROR %s\n", tok);
+	return EXPECTING_ANY;
+} 
+
+parser_state_t parse_string_expecting_quote(parser_state_t state, char *tok) {
+	logg("Waiting for \"",tok);
+	if (tok[strlen(tok)-1]=='\"'){
+		strcat(string_buffer, tok);
+		string_create(string_buffer);
+		return EXPECTING_ANY;
+	} else {
+		strcat(string_buffer, tok);
+		strcat(string_buffer, " ");
+		return STRING_EXPECTING_QUOTE;
+	}
+}
+	
 static parser_state_t state = EXPECTING_ANY;
 
 typedef parser_state_t (*parse_func)(parser_state_t state, char *);
@@ -248,7 +278,8 @@ typedef struct parse_table_entry {
     PS_COMMENT =6,
     BS_COMMENT = 7,
     EXPECTING_ANY = 8,
-    PS_ERROR = 9
+    PS_ERROR = 9,
+    STRING_EXPECTING_QUOTE
 */
 static ptentry_t pftable[] = {{":", strcmp, parse_colon},
                               {"", cmpany, parse_colon_name},
@@ -258,7 +289,9 @@ static ptentry_t pftable[] = {{":", strcmp, parse_colon},
                               {"", cmpany, parse_variable_name},
                               {"(", strcmp, parse_ps_comment},
                               {"\\", strcmp, parse_bs_comment},
-                              {"", cmpany, parse_word}};
+                              {"", cmpany, parse_word},
+                              {"", cmpany, parse_error},
+                              {"",cmpany, parse_string_expecting_quote}};
 
 /**
 

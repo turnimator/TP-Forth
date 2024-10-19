@@ -5,8 +5,8 @@
  *      Author: Jan Atle Ramsli
  *
  */
-// #define DEBUG
-
+//#define DEBUG
+#include <pthread.h>
 #include "runtime.h"
 
 #include "builtins.h"
@@ -149,6 +149,52 @@ static inline void ef_last_code(program_p prog, ftask_p task) {
   task->pcp++;
 }
 
+// Place next P-Code on stack instead of executing
+static inline void ef_defer(program_p prog, ftask_p task){
+	task->pcp++; // Point to the deferred word
+	d_push(task, (long) task->pcp);
+	task->pcp++; // Skipping the deferred word
+}
+
+static inline void ef_exec(program_p prog, ftask_p task){
+	r_push(task, task->pcp);
+	p_code_p* to_be_executed = (p_code_p*) d_pop(task);
+	task->pcp = to_be_executed;
+	cb_program_exec_word(prog, task);
+	task->pcp=r_pop(task);
+	task->pcp++;
+}
+
+static void* spawnfunc(void *v) {
+	logg("TASK", "SPAWNED");
+	run_task((ftask_p) v);
+	return 0;
+}
+
+static pthread_t tid[128];
+static int idx_tid = 0;
+
+static inline void ef_spawn(program_p prog, ftask_p task){
+	logg("SPAWNING", "TASK");
+	r_push(task, task->pcp);
+	p_code_p* to_be_executed = (p_code_p*) d_pop(task);
+	ftask_p new_task = ftask_create("tsk");
+	new_task->program = program_create("tsk");
+#ifdef DEBUG
+	program_dump(new_task->program,new_task);
+#endif
+	program_add_p_code(new_task->program, *to_be_executed);
+	pthread_create(&tid[idx_tid++], NULL, spawnfunc, (void *) new_task);
+	task->pcp=r_pop(task);
+	task->pcp++;
+}
+
+static inline void ef_string(program_p prog, ftask_p task){
+	p_code_p p = *task->pcp;
+	d_push(task, (long)p->val.s);
+	task->pcp++;
+}
+
 /*
 This is kind of hairy, just make sure that the place in the array farray[]
 corresponds to the PCODE type. from p_code.h:
@@ -164,17 +210,22 @@ corresponds to the PCODE type. from p_code.h:
   PCODE_ELSE = 9,
   PCODE_THEN =10,
   PCODE_EXIT=11,
+  PCODE_DEFER=12,
+  PCODE_EXEC = 13,
+  PCODE_SPAWN = 14,
+  PCODE_STRING = 15,
   PCODE_LAST*/
 static cbp_exec_func farray[] = {
     ef_error, ef_primitive, cb_ef_number, ef_variable, ef_dict_entry,
     ef_if,    ef_do,        ef_loop_end,  ef_i_cb,     ef_else,
-    ef_then,  ef_exit,      ef_last_code};
+    ef_then,  ef_exit,    ef_defer, ef_exec, ef_spawn, ef_string, ef_last_code};
 
 char *tstr(enum p_code_type t) {
   static char *sarray[] = {"PCODE_ERROR", "PCODE_BUILTIN", "PCODE_NUMBER",
                            "VARIABLE",    "DICT_ENTRY",    "IF",
                            "DO",          "LOOP",          "I",
                            "ELSE",        "THEN",          "EXIT",
+                           "DEFER", "EXEC", "SPWN", "STR",
                            "PCODE_LAST"};
   return sarray[t];
 }
@@ -182,7 +233,7 @@ char *tstr(enum p_code_type t) {
 static void cb_program_exec_word(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
   char buf[128];
-  sprintf(buf, "%s:%s(%s)", prog->name, tstr(pcp->type), pcp->name);
+  sprintf(buf, "%s:%s(%s)=%ld", prog->name, tstr(pcp->type), pcp->name, pcp->val.l);
   logg("EXEC->", buf);
 
   if (STEP) {

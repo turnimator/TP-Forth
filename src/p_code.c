@@ -81,6 +81,34 @@ p_code_p p_code_create_I() {
   rv->type = PCODE_I;
   return rv;
 }
+
+p_code_p p_code_defer_create(){
+	p_code_p rv = p_code_create_empty("DEFER");
+  rv->type = PCODE_DEFER;
+  return rv;
+}
+
+p_code_p p_code_exec_create(){
+	p_code_p rv = p_code_create_empty("EXEC");
+  rv->type = PCODE_EXEC;
+  return rv;
+}
+
+p_code_p p_code_spawn_create(){
+	p_code_p rv = p_code_create_empty("SPAWN");
+  rv->type = PCODE_SPAWN;
+  return rv;
+}
+
+p_code_p p_code_string_create(char*s){
+	p_code_p rv = p_code_create_empty("STR");
+	rv->type=PCODE_STRING;
+	rv->val.s = malloc(strlen(s));
+	strcpy(rv->val.s, s);
+	rv->val.s[strlen(rv->val.s)-1] = 0;
+	return rv;
+}
+
 /**
 Parse a word, creating a p-code
 */
@@ -91,6 +119,19 @@ p_code_p p_code_compile_word(char *src) {
   if (isNumber(src)) {
     return p_code_create_long(atol(src));
   }
+  if (*src=='\''){
+	return (p_code_string_create(src));
+  }
+  if (strcmp(src, "DEFER")==0){
+	return p_code_defer_create();
+  }
+  if (strcmp(src, "EXEC")==0){
+	return p_code_exec_create();
+  }
+  if (strcmp(src, "SPAWN")==0){
+	return p_code_spawn_create();
+  }
+
   int idx = variable_lookup(src);
   {
     if (idx != -1) {

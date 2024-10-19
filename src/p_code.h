@@ -14,6 +14,7 @@
 typedef union p_code_val {
   builtin_p pp;
   long l;
+  char* s;
   int var_idx; // Index into variable table
   program_p prog;
 } p_val_t, *p_val_p;
@@ -31,6 +32,10 @@ typedef enum p_code_type {
   PCODE_ELSE = 9,
   PCODE_THEN =10,
   PCODE_EXIT = 11,
+  PCODE_DEFER = 12,
+  PCODE_EXEC = 13,
+  PCODE_SPAWN =14,
+  PCODE_STRING = 15,
   PCODE_LAST
 
 } p_code_type_t;

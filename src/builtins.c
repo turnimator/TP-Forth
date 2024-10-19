@@ -41,15 +41,12 @@ void r_push(ftask_p task, p_code_p *p) {
   task->r_top++;
 }
 
-p_code_p* r_pop(ftask_p task) {
+p_code_p *r_pop(ftask_p task) {
   task->r_top--;
   return task->r_stack[task->r_top];
 }
 
-p_code_p *r_tos(ftask_p task) {
-  return task->r_stack[task->r_top - 1];
-}
-
+p_code_p *r_tos(ftask_p task) { return task->r_stack[task->r_top - 1]; }
 
 ///// PROGRAM (SUBROUTINES=DICT_ENTRIES=COLON DEFS)///////
 program_p prog_pop(ftask_p task) {
@@ -203,7 +200,6 @@ static inline void d_or(ftask_p task) {
 
 static inline void d_not(ftask_p task) {
   long l1 = d_pop(task);
-
   d_push(task, (l1 == 0) ? 1 : 0);
 }
 
@@ -330,7 +326,7 @@ static void d_variable_load(ftask_p task) {
 
 static void v_dump(ftask_p task) { variable_dump(); }
 
-static void s_dot(ftask_p task) {
+static void v_dot(ftask_p task) {
   int idx = d_pop(task);
   var_p v = variable_get(idx);
   printf("%s %ld", v->name, v->val.l);
@@ -362,6 +358,17 @@ static void r_d(ftask_p task) { d_push(task, (long)r_pop(task)); }
 inline void r_fetch(ftask_p task) {
   d_push(task, (long)task->prog_stack[task->prog_top - 1]);
 }
+
+void d_dummy(ftask_p task) {}
+
+
+/////////////////// STRING OPERATIONS //////
+
+void s_dot(ftask_p task){
+	printf("%s", (char*)d_pop(task));
+}
+/////////////////////////
+
 
 ///////////////////////////////////
 
@@ -432,6 +439,7 @@ void idx_builtins_dump() {
   printf("----------------------------\n");
 }
 
+
 /*
 Put all the builtins in the place indicated by their opcode.
 There must be one entry here for each opcode.
@@ -453,7 +461,7 @@ void builtin_build_db() {
   builtin_add("OR", d_or);
   builtin_add("NOT", d_not);
   builtin_add("CR", d_cr);
-  builtin_add("s.", s_dot);
+  builtin_add("v.", v_dot);
   builtin_add(".s", d_stack_dump);
   builtin_add(">", d_gt);
   builtin_add("<", d_lt);
@@ -473,6 +481,8 @@ void builtin_build_db() {
   builtin_add("VARS", v_dump);
   builtin_add(">r", d_r);
   builtin_add("r>", r_d);
+  builtin_add("DEFER", d_dummy);
+  builtin_add("s.", s_dot);
   add_custom_builtins();
   //    builtin_db_dump();
   index_names();

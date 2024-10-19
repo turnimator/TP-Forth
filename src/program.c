@@ -69,6 +69,15 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
   case PCODE_LAST:
     printf("END ");
     break;
+    case PCODE_DEFER:
+    printf("DEFER:");
+    break;
+    case PCODE_EXEC:
+    printf("EXEC:");
+    break;
+    case PCODE_SPAWN:
+    printf("SPWN:");
+    break;
   default:
     printf("  ? ");
     break;
