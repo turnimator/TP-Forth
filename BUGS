@@ -1,0 +1,9 @@
+BUGS
+
+On program_dump, show PC -- FIXED
+Make sure ; terminates the dictionary definition. Currently, it gets tucked onto the end.
+Insert an END_OF_PROGRAM marker ad the end of a program.
+Add Linux threads - OK
+Add Strings - Must intercept " at the beginning of parsing,
+ and copy everything to string buffer before parsing resumes. OK (partial)
+Nested WORD calls don't work.
