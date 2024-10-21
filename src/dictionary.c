@@ -83,13 +83,34 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       printf("LOOP:%s ", pcp->name);
       break;
     case PCODE_IF:
-      printf("COND:%s ", pcp->name);
+      printf("IF:%s ", pcp->name);
       break;
     case PCODE_ERROR:
       printf("ERR:%s ", pcp->name);
       break;
     case PCODE_I:
       printf("I:%s ", pcp->name);
+      break;
+    case PCODE_DEFER:
+      printf("' %s", pcp->name);
+      break;
+    case PCODE_ELSE:
+      printf("ELSE:%s ", pcp->name);
+      break;
+    case PCODE_EXEC:
+      printf("EXEC:%s ", pcp->name);
+      break;
+    case PCODE_EXIT:
+      printf("EXIT:%s ", pcp->name);
+      break;
+    case PCODE_SPAWN:
+      printf("SPWN:%s ", pcp->name);
+      break;
+    case PCODE_STRING:
+      printf("STR:%s ", pcp->val.s);
+      break;
+    case PCODE_THEN:
+      printf("THEN:%s ", pcp->name);
       break;
     default:
       printf("PCODE%d? ", pcp->type);
@@ -125,10 +146,11 @@ void dict_add_entry(dict_p dp, dict_entry_p dep) {
 
   dp->ndep_array++;
   dp->dep_array[dp->ndep_array - 1] = dep;
-  dp->dep_array = realloc(dp->dep_array, sizeof(dict_entry_p) * dp->ndep_array);
+  printf("\nReallocating %ld bytes: ", sizeof(dict_entry_p) * dp->ndep_array);
+  dp->dep_array = realloc(dp->dep_array, sizeof(dict_entry_p) * (dp->ndep_array+1));
 #ifdef DEBUG
   dict_dump(dp);
-  #endif
+#endif
 }
 
 dict_entry_p dict_entry_create(dict_p dp, char *name) {

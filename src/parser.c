@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-#define DEBUG
+//#define DEBUG
 
 #include "parser.h"
 
@@ -113,7 +113,6 @@ static void exit_create() {
 static void string_create(char *s) {
   p_code_p ps = p_code_compile_word(s);
   program_add_p_code(current_PROG, ps);
-  program_dump(current_PROG, 0);
 }
 
 static parser_state_t parse_variable(parser_state_t state, char *name) {
@@ -303,7 +302,7 @@ program_p parse(ftask_p task, char *source) {
   current_PROG = program_create("MAIN");
   task->program = current_PROG;
 #ifdef DEBUG
-  printf("Program before parse:");
+  printf("Program before parse:\n");
   program_dump(current_PROG, task);
 #endif
   /*
@@ -318,7 +317,7 @@ program_p parse(ftask_p task, char *source) {
     }
   }
 #ifdef DEBUG
-  printf("Program after parse:");
+  printf("\nProgram after parse:\n");
   program_dump(current_PROG, task);
 #endif
   return current_PROG;

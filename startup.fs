@@ -1,8 +1,3 @@
-: tst CR 1 . 2 . 3 . CR ;
-
-DEFER tst
-EXEC
-DEFER tst
-EXEC
-50 10 DO I . LOOP
-
+: task0 20 0 DO 0 . CR LOOP ;
+: task1 CR 20 0 DO 1 . LOOP ;
+DICT

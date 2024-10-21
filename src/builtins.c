@@ -258,7 +258,7 @@ static void d_i(ftask_p task) {}
 
 static void d_dot(ftask_p task) {
   if (task->d_top <= 0) {
-    printf("Stack Underflow");
+    printf(" . Data Stack Underflow");
     printf(" -- press x to exit");
     if (getchar() == 'x') {
       exit(-1);
@@ -365,7 +365,8 @@ void d_dummy(ftask_p task) {}
 /////////////////// STRING OPERATIONS //////
 
 void s_dot(ftask_p task){
-	printf("%s", (char*)d_pop(task));
+	char* s = (char*)d_pop(task);
+	printf("%s", s);
 }
 /////////////////////////
 
@@ -481,7 +482,7 @@ void builtin_build_db() {
   builtin_add("VARS", v_dump);
   builtin_add(">r", d_r);
   builtin_add("r>", r_d);
-  builtin_add("DEFER", d_dummy);
+  builtin_add("'", d_dummy);
   builtin_add("s.", s_dot);
   add_custom_builtins();
   //    builtin_db_dump();

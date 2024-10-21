@@ -6,7 +6,7 @@
  *
  */
 
-//#define DEBUG
+// #define DEBUG
 
 #include "program.h"
 #include "logg.h"
@@ -69,14 +69,17 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
   case PCODE_LAST:
     printf("END ");
     break;
-    case PCODE_DEFER:
-    printf("DEFER:");
+  case PCODE_DEFER:
+    printf("QUOT:");
     break;
-    case PCODE_EXEC:
+  case PCODE_EXEC:
     printf("EXEC:");
     break;
-    case PCODE_SPAWN:
+  case PCODE_SPAWN:
     printf("SPWN:");
+    break;
+  case PCODE_STRING:
+    printf("STR:%s", pcp->val.s);
     break;
   default:
     printf("  ? ");
