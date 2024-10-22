@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-//#define DEBUG
+// #define DEBUG
 #include "runtime.h"
 #include <pthread.h>
 
@@ -154,7 +154,7 @@ static inline void ef_last_code(program_p prog, ftask_p task) {
 
 // Place next P-Code on stack instead of executing
 static inline void ef_defer(program_p prog, ftask_p task) {
-	logg("DEFER","");
+  logg("DEFER", "");
   task->pcp++; // Point to the deferred word
   d_push(task, (long)task->pcp);
   task->pcp++; // Skip the deferred word
@@ -180,7 +180,7 @@ static int idx_tid = 0;
 
 static inline void ef_spawn(program_p prog, ftask_p task) {
   logg("SPAWNING", "TASK");
-  task->pcp++;
+  r_push(task, task->pcp);
   p_code_p *to_be_executed = (p_code_p *)d_pop(task);
   ftask_p new_task = ftask_create("tsk");
   new_task->program = program_create("tsk");
@@ -197,10 +197,8 @@ static inline void ef_spawn(program_p prog, ftask_p task) {
   if (err) {
     perror("task creation failed");
   }
-  printf("Does the code even get here?\n");
-
-  // task->pcp++; // THIS IS NOT IT! Or is it? Even if I  add this it's still
-  // pointing to SPAWN in main task!
+  task->pcp = r_pop(task);
+  task->pcp++;
 }
 
 static inline void ef_string(program_p prog, ftask_p task) {
