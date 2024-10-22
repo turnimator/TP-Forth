@@ -122,7 +122,7 @@ p_code_p p_code_compile_word(char *src) {
   if (*src=='\"'){
 	return (p_code_string_create(src));
   }
-  if (strcmp(src, "DEFER")==0){
+  if (strcmp(src, "\'")==0){
 	return p_code_defer_create();
   }
   if (strcmp(src, "EXEC")==0){

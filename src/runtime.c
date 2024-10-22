@@ -50,7 +50,7 @@ static inline void ef_variable(program_p prog, ftask_p task) {
 static inline void ef_dict_entry(program_p prog, ftask_p task) {
   logg(prog->name, "");
   p_code_p pcp = *task->pcp;
-  //r_push(task, task->pcp + 1);
+  // r_push(task, task->pcp + 1);
   r_push(task, task->pcp);
   // program_dump(prog,task);
   prog_push(task, task->program);
@@ -105,13 +105,14 @@ static inline void ef_loop_end(program_p prog, ftask_p task) {
     lu_pop(task);
     r_pop(task); // Pop off the return value that was pushed in ef_do
     task->pcp++;
-    //prog_pop(task);
+    // prog_pop(task);
     return;
   }
 #ifdef DEBUG
   printf("LOOP BACK TO %ld\n", offs(prog, r_tos(task)));
 #endif
-  task->pcp = r_tos(task); // LOOP back to p_code pushed in the last line of ef_do
+  task->pcp =
+      r_tos(task); // LOOP back to p_code pushed in the last line of ef_do
 }
 
 /*
@@ -153,9 +154,10 @@ static inline void ef_last_code(program_p prog, ftask_p task) {
 
 // Place next P-Code on stack instead of executing
 static inline void ef_defer(program_p prog, ftask_p task) {
+	logg("DEFER","");
   task->pcp++; // Point to the deferred word
   d_push(task, (long)task->pcp);
-  task->pcp++; // Skipping the deferred word
+  task->pcp++; // Skip the deferred word
 }
 
 static inline void ef_exec(program_p prog, ftask_p task) {
@@ -185,19 +187,20 @@ static inline void ef_spawn(program_p prog, ftask_p task) {
 #ifdef DEBUG
   program_dump(new_task->program, new_task);
 #endif
-idx_tid++;
-if (idx_tid>127){
-	idx_tid = 0;
-}
-  
+  idx_tid++;
+  if (idx_tid > 127) {
+    idx_tid = 0;
+  }
+
   program_add_p_code(new_task->program, *to_be_executed);
   int err = pthread_create(&tid[idx_tid], NULL, spawnfunc, (void *)new_task);
-  if (err){
-	perror("task creation failed");
+  if (err) {
+    perror("task creation failed");
   }
   printf("Does the code even get here?\n");
-  
- // task->pcp++; // THIS IS NOT IT! Or is it? Even if I  add this it's still pointing to SPAWN in main task!
+
+  // task->pcp++; // THIS IS NOT IT! Or is it? Even if I  add this it's still
+  // pointing to SPAWN in main task!
 }
 
 static inline void ef_string(program_p prog, ftask_p task) {
@@ -233,11 +236,11 @@ static cbp_exec_func p_code_jump_table[] = {
 
 char *tstr(jumptable_idx_t t) {
   static char *jts_sarray[] = {"PCODE_ERROR", "PCODE_BUILTIN", "PCODE_NUMBER",
-                           "VARIABLE",    "DICT_ENTRY",    "IF",
-                           "DO",          "LOOP",          "I",
-                           "ELSE",        "THEN",          "EXIT",
-                           "QUOT",       "EXEC",          "SPWN",
-                           "STR",         "PCODE_LAST"};
+                               "VARIABLE",    "DICT_ENTRY",    "IF",
+                               "DO",          "LOOP",          "I",
+                               "ELSE",        "THEN",          "EXIT",
+                               "QUOT",        "EXEC",          "SPWN",
+                               "STR",         "PCODE_LAST"};
   return jts_sarray[t];
 }
 
