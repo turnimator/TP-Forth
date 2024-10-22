@@ -31,7 +31,7 @@ program_p ct_prog_pop();
 void ct_push(ct_stack_idx_t, p_code_p cond);
 p_code_p ct_pop(ct_stack_idx_t);
 p_code_p ct_tos(ct_stack_idx_t);
-p_code_p ct_create(p_code_type_t pctyp);
+p_code_p ct_create(jumptable_idx_t pctyp);
 
 
 #endif /* COMPILER_H_ */

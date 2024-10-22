@@ -40,7 +40,7 @@ void p_code_delete(p_code_p pc) {
 
 static p_code_p p_code_create_long(long l) {
   p_code_p rv = p_code_create_empty("NUM");
-  rv->type = PCODE_NUMBER;
+  rv->jtidx = PCODE_NUMBER;
   rv->val.l = l;
   return rv;
 }
@@ -48,22 +48,22 @@ static p_code_p p_code_create_long(long l) {
 static p_code_p p_code_create_primitive(idx_builtin_p ip) {
   p_code_p rv = p_code_create_empty(ip->name);
   rv->val.pp = DB_builtins[ip->op];
-  rv->type = PCODE_BUILTIN;
+  rv->jtidx = PCODE_BUILTIN;
   return rv;
 }
 
 static p_code_p p_code_create_dict_entry(dict_entry_p dep) {
   p_code_p rv = p_code_create_empty(dep->name);
-  rv->type = PCODE_DICT_ENTRY;
+  rv->jtidx = PCODE_DICT_ENTRY;
   rv->val.prog = dep->prog;
   return rv;
 }
 
 /**
  */
-p_code_p p_code_ct_create(p_code_type_t pctyp, char *name) {
+p_code_p p_code_ct_create(jumptable_idx_t pctyp, char *name) {
   p_code_p rv = p_code_create_empty(name);
-  rv->type = pctyp;
+  rv->jtidx = pctyp;
   return rv;
 }
 
@@ -71,38 +71,38 @@ p_code_p p_code_ct_create(p_code_type_t pctyp, char *name) {
 p_code_p p_code_create_variable(int idx) {
   var_p v = variable_get(idx);
   p_code_p rv = p_code_create_empty(v->name);
-  rv->type = PCODE_VARIABLE;
+  rv->jtidx = PCODE_VARIABLE;
   rv->val.var_idx = v->vt_idx;
   return rv;
 }
 
 p_code_p p_code_create_I() {
   p_code_p rv = p_code_create_empty("IDX");
-  rv->type = PCODE_I;
+  rv->jtidx = PCODE_I;
   return rv;
 }
 
 p_code_p p_code_defer_create(){
 	p_code_p rv = p_code_create_empty("DEFER");
-  rv->type = PCODE_DEFER;
+  rv->jtidx = PCODE_DEFER;
   return rv;
 }
 
 p_code_p p_code_exec_create(){
 	p_code_p rv = p_code_create_empty("EXEC");
-  rv->type = PCODE_EXEC;
+  rv->jtidx = PCODE_EXEC;
   return rv;
 }
 
 p_code_p p_code_spawn_create(){
 	p_code_p rv = p_code_create_empty("SPAWN");
-  rv->type = PCODE_SPAWN;
+  rv->jtidx = PCODE_SPAWN;
   return rv;
 }
 
 p_code_p p_code_string_create(char*s){
 	p_code_p rv = p_code_create_empty("STR");
-	rv->type=PCODE_STRING;
+	rv->jtidx=PCODE_STRING;
 	rv->val.s = malloc(strlen(s));
 	strcpy(rv->val.s, s+1);
 	rv->val.s[strlen(rv->val.s)-1] = 0;

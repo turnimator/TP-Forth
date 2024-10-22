@@ -30,8 +30,15 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
   if (pcpp == task->pcp) {
     printf(" ==>");
   }
+  if (pcpp >= prog->pcp_array + prog->npcp_array){
+	printf("\nPROGRAM COUNTER BEYOND END!\n");
+  }
+  if (pcpp < prog->pcp_array){
+	printf("\nPROGRAM COUNTER BEFORE START!\n");
+  }
+
   p_code_p pcp = *pcpp;
-  switch (pcp->type) {
+  switch (pcp->jtidx) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
     break;

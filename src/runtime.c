@@ -18,7 +18,7 @@
 extern int STEP;
 
 typedef void (*cbp_exec_func)(program_p, ftask_p);
-static cbp_exec_func farray[];
+static cbp_exec_func p_code_jump_table[];
 
 long offs(program_p prog, p_code_p *pc) { return pc - prog->pcp_array; }
 
@@ -178,7 +178,7 @@ static int idx_tid = 0;
 
 static inline void ef_spawn(program_p prog, ftask_p task) {
   logg("SPAWNING", "TASK");
-  r_push(task, task->pcp);
+  task->pcp++;
   p_code_p *to_be_executed = (p_code_p *)d_pop(task);
   ftask_p new_task = ftask_create("tsk");
   new_task->program = program_create("tsk");
@@ -189,13 +189,15 @@ idx_tid++;
 if (idx_tid>127){
 	idx_tid = 0;
 }
+  
   program_add_p_code(new_task->program, *to_be_executed);
   int err = pthread_create(&tid[idx_tid], NULL, spawnfunc, (void *)new_task);
   if (err){
 	perror("task creation failed");
   }
-  task->pcp = r_pop(task);
-  task->pcp++;
+  printf("Does the code even get here?\n");
+  
+ // task->pcp++; // THIS IS NOT IT! Or is it? Even if I  add this it's still pointing to SPAWN in main task!
 }
 
 static inline void ef_string(program_p prog, ftask_p task) {
@@ -218,31 +220,31 @@ corresponds to the PCODE type. from p_code.h:
   PCODE_I = 8,
   PCODE_ELSE = 9,
   PCODE_THEN =10,
-  PCODE_EXIT=11,
-  PCODE_DEFER=12,
+  PCODE_EXIT = 11,
+  PCODE_DEFER = 12,
   PCODE_EXEC = 13,
-  PCODE_SPAWN = 14,
+  PCODE_SPAWN =14,
   PCODE_STRING = 15,
   PCODE_LAST*/
-static cbp_exec_func farray[] = {
+static cbp_exec_func p_code_jump_table[] = {
     ef_error, ef_primitive, cb_ef_number, ef_variable, ef_dict_entry, ef_if,
     ef_do,    ef_loop_end,  ef_i_cb,      ef_else,     ef_then,       ef_exit,
     ef_defer, ef_exec,      ef_spawn,     ef_string,   ef_last_code};
 
-char *tstr(enum p_code_type t) {
-  static char *sarray[] = {"PCODE_ERROR", "PCODE_BUILTIN", "PCODE_NUMBER",
+char *tstr(jumptable_idx_t t) {
+  static char *jts_sarray[] = {"PCODE_ERROR", "PCODE_BUILTIN", "PCODE_NUMBER",
                            "VARIABLE",    "DICT_ENTRY",    "IF",
                            "DO",          "LOOP",          "I",
                            "ELSE",        "THEN",          "EXIT",
                            "QUOT",       "EXEC",          "SPWN",
                            "STR",         "PCODE_LAST"};
-  return sarray[t];
+  return jts_sarray[t];
 }
 
 static void cb_program_exec_word(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
   char buf[128];
-  sprintf(buf, "%s:%s(%s)=%ld", prog->name, tstr(pcp->type), pcp->name,
+  sprintf(buf, "%s:%s(%s)=%ld", prog->name, tstr(pcp->jtidx), pcp->name,
           pcp->val.l);
   logg("EXEC->", buf);
 
@@ -255,7 +257,7 @@ static void cb_program_exec_word(program_p prog, ftask_p task) {
       STEP = 0;
     }
   }
-  farray[pcp->type](prog, task);
+  p_code_jump_table[pcp->jtidx](prog, task);
 }
 
 /**

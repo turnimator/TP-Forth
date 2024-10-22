@@ -19,7 +19,7 @@ typedef union p_code_val {
   program_p prog;
 } p_val_t, *p_val_p;
 
-typedef enum p_code_type {
+typedef enum jump_table_idx {
   PCODE_ERROR = 0,
   PCODE_BUILTIN = 1,
   PCODE_NUMBER = 2,
@@ -38,18 +38,18 @@ typedef enum p_code_type {
   PCODE_STRING = 15,
   PCODE_LAST
 
-} p_code_type_t;
+} jumptable_idx_t;
 
 typedef struct p_code {
   char *name;
-  p_code_type_t type;
+  jumptable_idx_t jtidx;
   p_val_t val;
 } p_code_t, *p_code_p;
 
 int isNumber(char *tok);
 
 p_code_p p_code_compile_word(char *);
-p_code_p p_code_ct_create(p_code_type_t, char*name);
+p_code_p p_code_ct_create(jumptable_idx_t, char*name);
 p_code_p p_code_create_variable(int);
 void p_code_delete(p_code_p pc);
 

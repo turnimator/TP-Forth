@@ -64,7 +64,7 @@ static void then_create() {
   long THEN_offset = current_PROG->npcp_array;
   long ELSE_offset = 0;
   long IF_offset = 0;
-  if (current_IF->type == PCODE_ELSE) {
+  if (current_IF->jtidx == PCODE_ELSE) {
     ELSE_offset = current_IF->val.l;
     current_IF->val.l = THEN_offset - ELSE_offset;
     current_IF = ct_pop(CT_IF);

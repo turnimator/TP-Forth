@@ -62,7 +62,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
 
     p_code_p pcp = dep->prog->pcp_array[i];
 
-    switch (pcp->type) {
+    switch (pcp->jtidx) {
     case PCODE_NUMBER:
       printf("NUM:%ld ", pcp->val.l);
       break;
@@ -113,7 +113,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
       printf("THEN:%s ", pcp->name);
       break;
     default:
-      printf("PCODE%d? ", pcp->type);
+      printf("PCODE%d? ", pcp->jtidx);
       break;
     }
   }
