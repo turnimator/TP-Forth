@@ -256,6 +256,7 @@ static void d_div(ftask_p task) {
 
 static void d_i(ftask_p task) {}
 
+/////////////////// IO ////////////////////
 static void d_dot(ftask_p task) {
   if (task->d_top <= 0) {
     printf(" . Data Stack Underflow");
@@ -270,6 +271,15 @@ static void d_dot(ftask_p task) {
 }
 
 static void d_cr(ftask_p task) { printf("\n"); }
+
+static void d_getkey(ftask_p task){
+	d_push(task, getchar());
+}
+
+static void d_emit(ftask_p task){
+	printf("%c", (char) d_pop(task));
+}
+/////////////////////////////////////////////////////////
 
 static inline void f_pick(ftask_p task) {
   long l = d_pick(task, d_pop(task));
@@ -484,6 +494,8 @@ void builtin_build_db() {
   builtin_add("r>", r_d);
   builtin_add("'", d_dummy);
   builtin_add("s.", s_dot);
+  builtin_add("KEY?", d_getkey);
+  builtin_add("EMIT", d_emit);
   add_custom_builtins();
   //    builtin_db_dump();
   index_names();

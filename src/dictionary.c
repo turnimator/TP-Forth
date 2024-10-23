@@ -146,7 +146,7 @@ void dict_add_entry(dict_p dp, dict_entry_p dep) {
 
   dp->ndep_array++;
   dp->dep_array[dp->ndep_array - 1] = dep;
-  printf("\nReallocating %ld bytes: ", sizeof(dict_entry_p) * dp->ndep_array);
+//  printf("\nReallocating %ld bytes: ", sizeof(dict_entry_p) * dp->ndep_array);
   dp->dep_array = realloc(dp->dep_array, sizeof(dict_entry_p) * (dp->ndep_array+1));
 #ifdef DEBUG
   dict_dump(dp);

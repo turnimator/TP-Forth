@@ -4,12 +4,14 @@
 : task3 30 0 DO 3 . LOOP CR " Task3 done!" s. CR ;
 CR " These are the tasks to run:" s. 
 DICT
-" First, we run them in sequence:" s. CR
+" Press ENTER to run them in sequence:" s. CR
+KEY?
 ' task0 EXEC
 ' task1 EXEC
 ' task2 EXEC
 ' task3 EXEC
-CR " Then, we run them concurrently:" s. CR
+CR " Press ENTER to run them concurrently:" s. CR
+KEY?
 ' task0 SPAWN
 ' task1 SPAWN
 ' task2 SPAWN

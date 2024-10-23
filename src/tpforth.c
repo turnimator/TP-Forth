@@ -30,6 +30,7 @@ char* read_file(char* filename)
 	fstat(fileno(f), &stbuf);
 	rv = malloc(stbuf.st_blksize*stbuf.st_blocks);
 	fread(rv, stbuf.st_blksize, stbuf.st_blocks, f);
+	
 	fclose(f);
 	return rv;
 }
@@ -50,6 +51,7 @@ int main(int ac, char*av[]) {
 	}
 	char* src = read_file(filename);
 	if (src){
+		puts(src);
 		parse(t, src);
 		run_task(t);
 		//free(src);
