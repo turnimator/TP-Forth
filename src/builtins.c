@@ -494,7 +494,7 @@ void builtin_build_db() {
   builtin_add("r>", r_d);
   builtin_add("'", d_dummy);
   builtin_add("s.", s_dot);
-  builtin_add("KEY?", d_getkey);
+  builtin_add("KEY", d_getkey);
   builtin_add("EMIT", d_emit);
   add_custom_builtins();
   //    builtin_db_dump();
