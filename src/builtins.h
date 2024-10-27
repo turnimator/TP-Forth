@@ -8,6 +8,9 @@
 #ifndef BUILTINS_H_
 #define BUILTINS_H_
 
+#define F_TRUE 0
+#define F_FALSE ~(F_TRUE)
+
 #include "task.h"
 /**
 For every value here, up to but not including last_opcode there MUST be an entry
@@ -47,7 +50,11 @@ void d_pock(ftask_p task, int no, long val);
 // long ll_tos(ftask_p task);
 long lu_pop(ftask_p task);
 long ll_pop(ftask_p task);
+long ld_pop(ftask_p);
 void lu_push(ftask_p task, long val);
+void ld_push(ftask_p, long);
+long ld_tos(ftask_p);
+
 void ll_push(ftask_p task, long val);
 void v_push(ftask_p task, int idx);
 

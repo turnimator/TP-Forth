@@ -15,14 +15,17 @@
 enum variable_type {
 	VTYP_LONG,
 	VTYP_ADDR,
+	VTYP_STR,
+	VTYP_ARRAY,
 	VTYP_DOES
 };
 
-typedef union varval {
+typedef struct varval {
 	char* addr;
-	long l;
-	
+	long l; // Scalar or element number in case of array
+	int sz; // Element size in case of array
 } varval_t, *varval_p;
+
 typedef struct variable {
 	char*name;
 	int vt_idx;

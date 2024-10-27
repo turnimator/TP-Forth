@@ -82,6 +82,8 @@ Dictionary entries have their own program
 static void ef_do(program_p prog, ftask_p task) {
   ll_push(task, d_pop(task));
   lu_push(task, d_pop(task));
+  ld_push(task,(lu_tos(task)-ll_tos(task)>0)?1:-1);
+  
 #ifdef DEBUG
   printf("DO FROM %d TO %d \n", ll_tos(task), lu_tos(task));
 #endif
@@ -103,6 +105,7 @@ static inline void ef_loop_end(program_p prog, ftask_p task) {
     lu_tos(task) = 0;
     ll_pop(task); // Get our old values back in case of nested loops
     lu_pop(task);
+    ld_pop(task);
     r_pop(task); // Pop off the return value that was pushed in ef_do
     task->pcp++;
     // prog_pop(task);
@@ -121,7 +124,7 @@ If FALSE, jump to code after ELSE or THEN (stored in pcp->val.l)
  */
 static inline void ef_if(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
-  if (d_pop(task) == 0) {
+  if (d_pop(task) == F_TRUE) {
     // printf("IF CODE TRUE, FALL THROUGH\n");
     task->pcp++;
   } else {

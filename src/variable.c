@@ -8,14 +8,14 @@
 #include "variable.h"
 #include "logg.h"
 #include "program.h"
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h> 
 
 var_p *vartable = 0;
 int n_vartable = 0;
 
-static void vt_add(var_p vp) {
+static void vartable_add(var_p vp) {
   n_vartable++;
   if (vartable) {
     vartable = realloc(vartable, sizeof(var_p *) * n_vartable);
@@ -39,20 +39,26 @@ char *vartype_string(var_p v) {
   case VTYP_DOES:
     sprintf(buf, "PROG %s", v->does->name);
     break;
+  case VTYP_ARRAY:
+    sprintf(buf, "ARRAY %s[%ld]", v->name, v->val.l);
+    break;
+  case VTYP_STR:
+    sprintf(buf, "STR %s %s", v->name, v->val.addr);
+    break;
   }
   return buf;
 }
 
-int vt_dump_cb(var_p v, char *name) {
+int vartable_dump_cb(var_p v, char *name) {
   printf("VAR:%s=%s\n", v->name, vartype_string(v));
   return 0;
 }
 
-int vt_lookup_cb(var_p v, char *name) {
+int vartable_lookup_cb(var_p v, char *name) {
   return (strcmp(name, v->name) == 0 ? 1 : 0);
 }
 
-int vt_loop(int (*vt_func)(var_p, char *), char *p) {
+int vartable_forEach(int (*vt_func)(var_p, char *), char *p) {
   for (int i = 0; i < n_vartable; i++) {
     if (vt_func(vartable[i], p)) {
       return i;
@@ -61,25 +67,23 @@ int vt_loop(int (*vt_func)(var_p, char *), char *p) {
   return -1;
 }
 
-void variable_dump() {
+void vartable_dump() {
   printf("----------|VARIABLES|-----------\n");
-  vt_loop(vt_dump_cb, 0);
+  vartable_forEach(vartable_dump_cb, 0);
   printf("---------------------------------\n");
 }
 
-var_p variable_get(int idx) 
-{ 
-	if(idx<n_vartable){
-	return vartable[idx];
-	} else {
-		printf("ERROR: VARIABLE INDEX %d OUT OF RANGE", idx);
-	}
-	return 0;
+var_p variable_get(int idx) {
+  if (idx < n_vartable) {
+    return vartable[idx];
+  } else {
+    printf("ERROR: VARIABLE INDEX %d OUT OF RANGE", idx);
+  }
+  return 0;
 }
 
-int variable_lookup(char *name) 
-{ 
-	return vt_loop(vt_lookup_cb, name); 
+int variable_lookup(char *name) {
+  return vartable_forEach(vartable_lookup_cb, name);
 }
 
 static var_p var_create(char *name) {
@@ -110,17 +114,18 @@ void variable_does(var_p v, program_p prog) {
   v->t = VTYP_DOES;
 }
 
+
 var_p variable_add(char *name) {
   logg("NAME", "VARTABLE BEFORE:");
   int idx = variable_lookup(name);
-  if (idx != -1){
-	printf("VARIABLE %s redefined", name);
-	return vartable[idx];
+  if (idx != -1) {
+    printf("VARIABLE %s redefined", name);
+    return vartable[idx];
   }
   var_p rv = var_create(name);
-  vt_add(rv);
-  #ifdef DEBUG
+  vartable_add(rv);
+#ifdef DEBUG
   variable_dump();
-  #endif
+#endif
   return rv;
 }

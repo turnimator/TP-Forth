@@ -38,6 +38,8 @@ typedef struct ftask {
   int lu_top;
   int loop_lower[LOOP_STACK_SIZE];
   int ll_top;
+  int ld[LOOP_STACK_SIZE];
+  int ld_top;
 } ftask_t, *ftask_p;
 
 ftask_p ftask_create(char *name);
