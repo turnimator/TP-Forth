@@ -20,8 +20,13 @@ enum variable_type {
 	VTYP_DOES
 };
 
+typedef union addrtype {
+	char* cp;
+	long* lp;
+} varaddr_t;
+
 typedef struct varval {
-	char* addr;
+	varaddr_t addr;
 	long l; // Scalar or element number in case of array
 	int sz; // Element size in case of array
 } varval_t, *varval_p;

@@ -73,7 +73,8 @@ builtin_p builtin_create(char *name, funcptr code) {
   return rv;
 }
 
-////////////////////////// ------ LOOP STACK OPERATIONS -------------- ////////////////////
+////////////////////////// ------ LOOP STACK OPERATIONS --------------
+///////////////////////
 inline void lu_push(ftask_p task, long val) {
   task->loop_upper[task->lu_top] = val;
   task->lu_top++;
@@ -111,7 +112,6 @@ inline long lu_pop(ftask_p task) {
   return l;
 }
 
-
 /*
 Using macros for these
 inline long ll_tos(ftask_p task) { return task->loop_lower[task->ll_top - 1]; }
@@ -140,7 +140,8 @@ inline void ll_push(ftask_p task, long val) {
   task->ll_top++;
 }
 
-/////////////////////////// ---- DATA STACK OPERATIONS ----- /////////////////////
+/////////////////////////// ---- DATA STACK OPERATIONS -----
+////////////////////////
 
 inline void d_push(ftask_p task, long val) {
   task->d_stack[task->d_top] = val;
@@ -205,14 +206,14 @@ static inline void d_step(ftask_p task) {
   }
 }
 
-////////// ------ DATA STACK ARITHMETIC / LOGIC OPERATIONS ---------- //////////////////////////
+////////// ------ DATA STACK ARITHMETIC / LOGIC OPERATIONS ----------
+/////////////////////////////
 
 static inline void d_gt(ftask_p task) {
   long l1 = d_pop(task);
   long l2 = d_pop(task);
   d_push(task, (l2 > l1) ? 0 : 1);
 }
-
 
 static inline void d_and(ftask_p task) {
   long l1 = d_pop(task);
@@ -300,7 +301,6 @@ static void d_getkey(ftask_p task) { d_push(task, getchar()); }
 static void d_emit(ftask_p task) { printf("%c", (char)d_pop(task)); }
 /////////////////////////////////////////////////////////
 
-
 //////// --------- DATA STACK MANIPULATION ---------------- /////////////////
 void d_dup(ftask_p task) {
   task->d_stack[task->d_top] = task->d_stack[task->d_top - 1];
@@ -337,8 +337,8 @@ static inline void d_drop(ftask_p task) { task->d_top--; }
 
 static inline void d_drop2(ftask_p task) { task->d_top -= 2; }
 
-
-///////////////// DATA STACK VARIABLE OPERATIONS ------------ ///////////////////
+///////////////// DATA STACK VARIABLE OPERATIONS ------------
+//////////////////////
 /**
 Store value on data stack in variable on variable stack
  */
@@ -354,7 +354,7 @@ static void d_variable_store(ftask_p task) {
 }
 
 /*
-*/
+ */
 static void d_variable_store_at(ftask_p task) {
   long val = d_pop(task);
   long array_index = d_pop(task);
@@ -362,9 +362,13 @@ static void d_variable_store_at(ftask_p task) {
   var_p v = variable_get(vartable_index);
   if (!v) {
     printf("Variable not found!\n");
-  } else {
-    v->val.addr[array_index] = val;
   }
+  
+  if (array_index > v->val.l) {
+    printf("Array index out of range!");
+    return;
+  }
+  v->val.addr.lp[array_index] = val;
 }
 
 static void d_variable_load(ftask_p task) {
@@ -381,22 +385,27 @@ static void d_variable_load_at(ftask_p task) {
   var_p v = variable_get(d_pop(task));
   if (!v) {
     printf("\nVariable not found!\n");
-  } else {
-    d_push(task, v->val.addr[array_index]);
+    return;
   }
+  if (array_index > v->val.l) {
+    printf("Array index out of range!");
+    return;
+  }
+  d_push(task, v->val.addr.lp[array_index]);
 }
 
-
 static void d_variable_allot(ftask_p task) {
-  long elem_sz = d_pop(task);
+  long elem_sz = sizeof(long); // d_pop(task);
   long n_elems = d_pop(task);
   var_p v = variable_get(d_pop(task));
   if (!v) {
     printf("\nVariable not found!\n");
     return;
   }
+  v->val.l = n_elems;
   printf("Allocating %ld * %ld\n", elem_sz, n_elems);
-  v->val.addr = malloc(v->val.l * v->val.sz);
+  v->val.addr.lp = malloc(v->val.l * v->val.sz);
+
   v->t = VTYP_ARRAY;
 }
 
@@ -412,7 +421,7 @@ static void d_variable_index(ftask_p task) {
     return;
   }
   printf("Accessing elm no %ld\n", elem);
-  d_push(task, (long)v->val.addr + (v->val.sz * elem));
+  d_push(task, v->val.addr.cp[elem]);
 }
 
 static void v_dump(ftask_p task) { vartable_dump(); }
@@ -420,7 +429,27 @@ static void v_dump(ftask_p task) { vartable_dump(); }
 static void v_dot(ftask_p task) {
   int idx = d_pop(task);
   var_p v = variable_get(idx);
-  printf("%s %ld", v->name, v->val.l);
+  switch (v->t) {
+  case VTYP_ARRAY:
+    printf("Arr:");
+    for (int i = 0; i < 20; i++) {
+      if (i >= v->val.l) {
+        break;
+      }
+      printf("%ld", v->val.addr.lp[i]);
+    }
+    break;
+  case VTYP_ADDR:
+    break;
+  case VTYP_DOES:
+    break;
+  case VTYP_LONG:
+    printf("%s %ld", v->name, v->val.l);
+    break;
+  case VTYP_STR:
+    printf("%s %s", v->name, v->val.addr.cp);
+    break;
+  }
 }
 
 void d_stack_dump(ftask_p task) {
@@ -551,7 +580,7 @@ void builtin_build_db() {
   builtin_add("OR", d_or);
   builtin_add("NOT", d_not);
   builtin_add("CR", d_cr);
-  builtin_add("v.", v_dot);
+  builtin_add("V.", v_dot);
   builtin_add(".s", d_stack_dump);
   builtin_add(">", d_gt);
   builtin_add("<", d_lt);

@@ -31,7 +31,7 @@ char *vartype_string(var_p v) {
   buf[0] = 0;
   switch (v->t) {
   case VTYP_ADDR:
-    sprintf(buf, "ADDR %p", v->val.addr);
+    sprintf(buf, "ADDR %p", v->val.addr.cp);
     break;
   case VTYP_LONG:
     sprintf(buf, "LONG %ld", v->val.l);
@@ -43,7 +43,7 @@ char *vartype_string(var_p v) {
     sprintf(buf, "ARRAY %s[%ld]", v->name, v->val.l);
     break;
   case VTYP_STR:
-    sprintf(buf, "STR %s %s", v->name, v->val.addr);
+    sprintf(buf, "STR %s %s", v->name, v->val.addr.cp);
     break;
   }
   return buf;
@@ -105,7 +105,7 @@ void var_store_long(var_p v, long l) {
 }
 
 void var_store_addr(var_p v, char *addr) {
-  v->val.addr = addr;
+  v->val.addr.cp = addr;
   v->t = VTYP_ADDR;
 }
 
