@@ -73,11 +73,7 @@ builtin_p builtin_create(char *name, funcptr code) {
   return rv;
 }
 
-inline void d_push(ftask_p task, long val) {
-  task->d_stack[task->d_top] = val;
-  task->d_top++;
-}
-
+////////////////////////// ------ LOOP STACK OPERATIONS -------------- ////////////////////
 inline void lu_push(ftask_p task, long val) {
   task->loop_upper[task->lu_top] = val;
   task->lu_top++;
@@ -101,26 +97,6 @@ inline long ld_pop(ftask_p task) {
   return l;
 }
 
-long ld_tos(ftask_p task) { return task->ld[task->ld_top - 1]; }
-
-inline void ll_push(ftask_p task, long val) {
-  task->loop_lower[task->ll_top] = val;
-  task->ll_top++;
-}
-
-inline long d_pop(ftask_p task) {
-  if (task->d_top < 0) {
-    printf("Data Stack Underflow -- press x to exit");
-    if (getchar() == 'x') {
-      exit(-1);
-    }
-    return 0;
-  }
-  long l = task->d_stack[task->d_top - 1];
-  task->d_top--;
-  return l;
-}
-
 inline long lu_pop(ftask_p task) {
   if (task->lu_top < 0) {
     printf("Upper Loop Stack Underflow");
@@ -134,6 +110,7 @@ inline long lu_pop(ftask_p task) {
   task->lu_top--;
   return l;
 }
+
 
 /*
 Using macros for these
@@ -153,6 +130,33 @@ inline long ll_pop(ftask_p task) {
   }
   long l = task->loop_lower[task->ll_top - 1];
   task->ll_top--;
+  return l;
+}
+
+long ld_tos(ftask_p task) { return task->ld[task->ld_top - 1]; }
+
+inline void ll_push(ftask_p task, long val) {
+  task->loop_lower[task->ll_top] = val;
+  task->ll_top++;
+}
+
+/////////////////////////// ---- DATA STACK OPERATIONS ----- /////////////////////
+
+inline void d_push(ftask_p task, long val) {
+  task->d_stack[task->d_top] = val;
+  task->d_top++;
+}
+
+inline long d_pop(ftask_p task) {
+  if (task->d_top < 0) {
+    printf("Data Stack Underflow -- press x to exit");
+    if (getchar() == 'x') {
+      exit(-1);
+    }
+    return 0;
+  }
+  long l = task->d_stack[task->d_top - 1];
+  task->d_top--;
   return l;
 }
 
@@ -190,11 +194,6 @@ int v_pop(ftask_p task) {
 
 inline int v_tos(ftask_p task) { return task->v_stack[task->v_top - 1]; }
 */
-static inline void d_gt(ftask_p task) {
-  long l1 = d_pop(task);
-  long l2 = d_pop(task);
-  d_push(task, (l2 > l1) ? 0 : 1);
-}
 
 static inline void d_step(ftask_p task) {
   int l1 = d_pop(task);
@@ -205,6 +204,15 @@ static inline void d_step(ftask_p task) {
     STEP = 0;
   }
 }
+
+////////// ------ DATA STACK ARITHMETIC / LOGIC OPERATIONS ---------- //////////////////////////
+
+static inline void d_gt(ftask_p task) {
+  long l1 = d_pop(task);
+  long l2 = d_pop(task);
+  d_push(task, (l2 > l1) ? 0 : 1);
+}
+
 
 static inline void d_and(ftask_p task) {
   long l1 = d_pop(task);
@@ -238,11 +246,6 @@ static inline void d_eq(ftask_p task) {
 static inline void d_true(ftask_p task) { d_push(task, F_TRUE); }
 
 static inline void d_false(ftask_p task) { d_push(task, F_FALSE); }
-
-void d_dup(ftask_p task) {
-  task->d_stack[task->d_top] = task->d_stack[task->d_top - 1];
-  task->d_top++;
-}
 
 static void d_plus(ftask_p task) {
   long l1 = d_pop(task);
@@ -297,6 +300,13 @@ static void d_getkey(ftask_p task) { d_push(task, getchar()); }
 static void d_emit(ftask_p task) { printf("%c", (char)d_pop(task)); }
 /////////////////////////////////////////////////////////
 
+
+//////// --------- DATA STACK MANIPULATION ---------------- /////////////////
+void d_dup(ftask_p task) {
+  task->d_stack[task->d_top] = task->d_stack[task->d_top - 1];
+  task->d_top++;
+}
+
 static inline void f_pick(ftask_p task) {
   long l = d_pick(task, d_pop(task));
   d_push(task, l);
@@ -327,17 +337,33 @@ static inline void d_drop(ftask_p task) { task->d_top--; }
 
 static inline void d_drop2(ftask_p task) { task->d_top -= 2; }
 
+
+///////////////// DATA STACK VARIABLE OPERATIONS ------------ ///////////////////
 /**
 Store value on data stack in variable on variable stack
  */
 static void d_variable_store(ftask_p task) {
   long val = d_pop(task);
-  long idx = d_pop(task);
-  var_p v = variable_get(idx);
+  long vartable_index = d_pop(task);
+  var_p v = variable_get(vartable_index);
   if (!v) {
     printf("Variable not found!\n");
   } else {
     v->val.l = val;
+  }
+}
+
+/*
+*/
+static void d_variable_store_at(ftask_p task) {
+  long val = d_pop(task);
+  long array_index = d_pop(task);
+  long vartable_index = d_pop(task);
+  var_p v = variable_get(vartable_index);
+  if (!v) {
+    printf("Variable not found!\n");
+  } else {
+    v->val.addr[array_index] = val;
   }
 }
 
@@ -350,6 +376,17 @@ static void d_variable_load(ftask_p task) {
   }
 }
 
+static void d_variable_load_at(ftask_p task) {
+  long array_index = d_pop(task);
+  var_p v = variable_get(d_pop(task));
+  if (!v) {
+    printf("\nVariable not found!\n");
+  } else {
+    d_push(task, v->val.addr[array_index]);
+  }
+}
+
+
 static void d_variable_allot(ftask_p task) {
   long elem_sz = d_pop(task);
   long n_elems = d_pop(task);
@@ -358,6 +395,7 @@ static void d_variable_allot(ftask_p task) {
     printf("\nVariable not found!\n");
     return;
   }
+  printf("Allocating %ld * %ld\n", elem_sz, n_elems);
   v->val.addr = malloc(v->val.l * v->val.sz);
   v->t = VTYP_ARRAY;
 }
@@ -373,10 +411,11 @@ static void d_variable_index(ftask_p task) {
     printf("\nVariable not ARRAY!\n");
     return;
   }
+  printf("Accessing elm no %ld\n", elem);
   d_push(task, (long)v->val.addr + (v->val.sz * elem));
 }
 
-static void v_dump(ftask_p task) { variable_dump(); }
+static void v_dump(ftask_p task) { vartable_dump(); }
 
 static void v_dot(ftask_p task) {
   int idx = d_pop(task);
@@ -392,6 +431,7 @@ void d_stack_dump(ftask_p task) {
   printf(" ]\n");
 }
 
+//////////////// ------------- ---------------- ////////////////////
 static void f_exit(ftask_p task) {
   // Handled in runtime.c
 }
@@ -524,7 +564,9 @@ void builtin_build_db() {
   builtin_add("FALSE", d_false);
   builtin_add("I", d_i);
   builtin_add("!", d_variable_store);
+  builtin_add("!!", d_variable_store_at);
   builtin_add("@", d_variable_load);
+  builtin_add("@@", d_variable_load_at);
   builtin_add("STEP", d_step);
   builtin_add("EXIT", f_exit);
   builtin_add("DICT", f_dict_dump);
@@ -535,6 +577,8 @@ void builtin_build_db() {
   builtin_add("s.", s_dot);
   builtin_add("KEY", d_getkey);
   builtin_add("EMIT", d_emit);
+  builtin_add("ALLOT", d_variable_allot);
+  builtin_add("CELLS+", d_variable_index);
   add_custom_builtins();
   //    builtin_db_dump();
   index_names();

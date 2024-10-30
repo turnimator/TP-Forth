@@ -38,6 +38,9 @@ char* read_file(char* filename)
 
 int main(int ac, char*av[]) {
 	puts("TP-FORTH - A Forth Language P-CODE Interpreter)\n");
+	printf("Sizeof(long) = %ld\n", sizeof(long));
+	printf("Sizeof(int) = %lu\n", sizeof(int));
+	printf("Sizeof(void*) = %ld\n", sizeof(void*));
 	
 	char buf[256];
 	dict_init();

@@ -40,6 +40,6 @@ int variable_lookup(char*);
 char *vartype_string(var_p v);
 void var_store_long(var_p v, long l);
 void var_store_addr(var_p v, char* addr);
-void variable_dump() ;
+void vartable_dump() ;
 
 #endif /* VARIABLE_H_ */
