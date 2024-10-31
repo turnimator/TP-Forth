@@ -337,8 +337,7 @@ static inline void d_drop(ftask_p task) { task->d_top--; }
 
 static inline void d_drop2(ftask_p task) { task->d_top -= 2; }
 
-///////////////// DATA STACK VARIABLE OPERATIONS ------------
-//////////////////////
+///////////////// DATA STACK VARIABLE OPERATIONS //////////////////////
 /**
 Store value on data stack in variable on variable stack
  */
