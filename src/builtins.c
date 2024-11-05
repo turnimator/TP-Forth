@@ -285,7 +285,7 @@ static void d_i(ftask_p task) {}
 static void d_q_create(ftask_p task){
 	long size = d_pop(task);
 	char* name = (char*) d_pop(task);
-	printf("Creating que %s of size %ld\n", name, size);
+	//printf("Creating que %s of size %ld\n", name, size);
 	tpq_p q = q_create(name, (int) size);
 	d_push(task, (long) q);
 }
@@ -293,13 +293,13 @@ static void d_q_create(ftask_p task){
 static void d_q_write(ftask_p task){
 	char* msg = (char*) d_pop(task);
 	tpq_p q = (tpq_p) d_pop(task);
-	printf("Writing message %s to queue %s\n", msg, q->name);
+	//printf("Writing message %s to queue %s\n", msg, q->name);
 	q_put(q, msg);
 }
 
 static void d_q_read(ftask_p task){
 	tpq_p q = (tpq_p) d_pop(task);
-	printf("Reading message from queue %s\n", q->name);
+	//printf("Reading message from queue %s\n", q->name);
 	char* msg = q_get(q);
 	d_push(task, (long) msg);
 }
@@ -307,12 +307,12 @@ static void d_q_read(ftask_p task){
 static void d_q_find(ftask_p task){
 	tpq_p q;
 	char* name = (char*) d_pop(task);
-	printf("Looking up queue %s", name);
+	//printf("Looking up queue %s", name);
 	q = (tpq_p) q_find(name);
 	if ( ! q){
-		printf(" not found\n");		
+		//printf(" not found\n");		
 	} else {
-		printf(" found %s\n", q->name);	
+		//printf(" found %s\n", q->name);	
 	}
 	d_push(task, (long) q);
 }
