@@ -11,6 +11,7 @@
 #include "dictionary.h"
 #include "program.h"
 #include "task.h"
+#include "tp_queue.h"
 #include "variable.h"
 #include <malloc.h>
 #include <stdio.h>
@@ -279,6 +280,47 @@ static void d_div(ftask_p task) {
 }
 
 static void d_i(ftask_p task) {}
+
+//////// --------- QUEUES ---------- //////
+static void d_q_create(ftask_p task){
+	long size = d_pop(task);
+	char* name = (char*) d_pop(task);
+	printf("Creating que %s of size %ld\n", name, size);
+	tpq_p q = q_create(name, (int) size);
+	d_push(task, (long) q);
+}
+
+static void d_q_write(ftask_p task){
+	char* msg = (char*) d_pop(task);
+	tpq_p q = (tpq_p) d_pop(task);
+	printf("Writing message %s to queue %s\n", msg, q->name);
+	q_put(q, msg);
+}
+
+static void d_q_read(ftask_p task){
+	tpq_p q = (tpq_p) d_pop(task);
+	printf("Reading message from queue %s\n", q->name);
+	char* msg = q_get(q);
+	d_push(task, (long) msg);
+}
+
+static void d_q_find(ftask_p task){
+	tpq_p q;
+	char* name = (char*) d_pop(task);
+	printf("Looking up queue %s", name);
+	q = (tpq_p) q_find(name);
+	if ( ! q){
+		printf(" not found\n");		
+	} else {
+		printf(" found %s\n", q->name);	
+	}
+	d_push(task, (long) q);
+}
+
+static void d_q_dot(ftask_p task){
+	tpq_p q = (tpq_p)d_tos(task);
+	printf("%s(%d,%s)", q->name, q->msz, q->full?"full":"empty");
+}
 
 /////////////////// IO ////////////////////
 static void d_dot(ftask_p task) {
@@ -602,11 +644,16 @@ void builtin_build_db() {
   builtin_add(">r", d_r);
   builtin_add("r>", r_d);
   builtin_add("'", d_dummy);
-  builtin_add("s.", s_dot);
+  builtin_add("S.", s_dot);
   builtin_add("KEY", d_getkey);
   builtin_add("EMIT", d_emit);
   builtin_add("ALLOT", d_variable_allot);
   builtin_add("CELLS+", d_variable_index);
+  builtin_add("QCREATE", d_q_create);
+  builtin_add("Q", d_q_find);
+  builtin_add("Q>", d_q_write);
+  builtin_add("<Q", d_q_read);
+  builtin_add("Q.", d_q_dot);
   add_custom_builtins();
   //    builtin_db_dump();
   index_names();
