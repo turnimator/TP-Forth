@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h> 
 
 builtin_p *DB_builtins;
 int N_builtins = 0;
@@ -341,6 +342,11 @@ static void d_cr(ftask_p task) { printf("\n"); }
 static void d_getkey(ftask_p task) { d_push(task, getchar()); }
 
 static void d_emit(ftask_p task) { printf("%c", (char)d_pop(task)); }
+
+static void d_ms(ftask_p task){
+	long millis = d_pop(task);
+	usleep(millis);
+}
 /////////////////////////////////////////////////////////
 
 //////// --------- DATA STACK MANIPULATION ---------------- /////////////////
@@ -654,6 +660,7 @@ void builtin_build_db() {
   builtin_add("Q>", d_q_write);
   builtin_add("<Q", d_q_read);
   builtin_add("Q.", d_q_dot);
+  builtin_add("MS", d_ms);
   add_custom_builtins();
   //    builtin_db_dump();
   index_names();
