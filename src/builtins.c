@@ -535,6 +535,17 @@ void s_dot(ftask_p task) {
   char *s = (char *)d_pop(task);
   printf("%s", s);
 }
+
+void s_cmp(ftask_p task){
+	char *s1 = (char *)d_pop(task);
+	char *s2 = (char *)d_pop(task);
+	d_push(task, strcmp(s1,s2));
+}
+
+void s_to_long(ftask_p task){
+	char *s = (char *)d_pop(task);
+	d_push(task,atol(s));
+}
 /////////////////////////
 
 ///////////////////////////////////
@@ -651,6 +662,8 @@ void builtin_build_db() {
   builtin_add("r>", r_d);
   builtin_add("'", d_dummy);
   builtin_add("S.", s_dot);
+  builtin_add("S=", s_cmp);
+  builtin_add("S>L", s_to_long);
   builtin_add("KEY", d_getkey);
   builtin_add("EMIT", d_emit);
   builtin_add("ALLOT", d_variable_allot);

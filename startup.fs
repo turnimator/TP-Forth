@@ -2,5 +2,5 @@
 " q1" 26 QCREATE
 .s
 : sender 5 0 DO " q1" Q " Hello" Q> 10000000 MS LOOP ;
-: receiver 10 0 DO " Received:" S. " q1" Q <Q S. CR LOOP ;
+: receiver 10 0 DO " Received:" S. " q1" Q DUP Q. <Q DUP " Hello" S= IF " Bye" S. THEN CR LOOP ;
 ' receiver SPAWN
