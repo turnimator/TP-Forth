@@ -546,6 +546,15 @@ void s_to_long(ftask_p task){
 	char *s = (char *)d_pop(task);
 	d_push(task,atol(s));
 }
+
+void long_to_s(ftask_p task){
+	static char buf[256];
+	long l = d_pop(task);
+	sprintf(buf, "%ld", l);
+	d_push(task, (long)buf);
+}
+
+
 /////////////////////////
 
 ///////////////////////////////////
@@ -664,6 +673,7 @@ void builtin_build_db() {
   builtin_add("S.", s_dot);
   builtin_add("S=", s_cmp);
   builtin_add("S>L", s_to_long);
+  builtin_add("L>S", long_to_s);
   builtin_add("KEY", d_getkey);
   builtin_add("EMIT", d_emit);
   builtin_add("ALLOT", d_variable_allot);

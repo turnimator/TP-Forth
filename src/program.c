@@ -116,6 +116,7 @@ program_p program_create(char *name) {
   prog->name = malloc(strlen(name));
   strcpy(prog->name, name);
   prog->npcp_array = 0;
+  prog->pcp_array = 0;
   return prog;
 }
 

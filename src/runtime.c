@@ -200,6 +200,7 @@ static inline void ef_spawn(program_p prog, ftask_p task) {
   if (err) {
     perror("task creation failed");
   }
+  idx_tid++;
   task->pcp = r_pop(task);
   task->pcp++;
 }

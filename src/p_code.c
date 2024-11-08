@@ -14,7 +14,10 @@
 #include <string.h>
 
 int isNumber(char *tok) {
-  for (char *p = tok; *p; p++) {
+	if (! isdigit(*tok) && *tok != '-'){
+		return 0;
+	}
+  for (char *p = tok+1; *p; p++) {
     if (!isdigit(*p)) {
       return 0;
     }
