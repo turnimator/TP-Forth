@@ -328,7 +328,15 @@ program_p parse(ftask_p task, char *source) {
       tok = strtok(source, delim);
       state = EXPECTING_ANY;
     }
-
+    if (strcmp(tok, "(") == 0) {
+      tok++;
+      while (*tok != ')') {
+        tok++;
+      }
+      source = tok;
+      tok = strtok(source, delim);
+      state = EXPECTING_ANY;
+    }
     if (pftable[state].cmpf(tok, pftable[state].tok) == 0) {
       state = pftable[state].f(state, tok);
     }

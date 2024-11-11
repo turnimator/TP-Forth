@@ -14,7 +14,7 @@
 	 ;
 
 	 
-: readdirection
+: readdirection ( s -- )
 	200 0 DO 
 		" dirQ" Q DUP <Q checkDirection 
 		LOOP 
