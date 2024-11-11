@@ -26,6 +26,8 @@
 
 p_code_p current_IF; // Current conditional
 p_code_p current_DO; // Current DO
+p_code_p current_BEGIN;
+
 program_p current_PROG;
 
 static dict_entry_p de = 0; // Current colon definition
@@ -92,6 +94,14 @@ static void do_create() {
   program_add_p_code(current_PROG, current_DO);
 }
 
+static void begin_create() {
+  logg("BEGIN", "PUSH");
+  ct_push(CT_BEGIN, current_BEGIN); // Must be popped on LOOP
+  current_BEGIN = p_code_ct_create(PCODE_LOOP_BEGIN, "BEGIN");
+  current_BEGIN->val.l = current_PROG->npcp_array + 1;
+  program_add_p_code(current_PROG, current_BEGIN);
+}
+
 static void loop_create() {
   int ijump;
   ijump = current_DO->val.l;
@@ -103,6 +113,19 @@ static void loop_create() {
   current_DO = ct_pop(CT_DO); // POP back the old loop
   logg("LOOP", "POP");
 }
+
+static void again_create() {
+  int ijump;
+  ijump = current_BEGIN->val.l;
+  logg("BEGIN", "AGAIN");
+  p_code_p loop_end_code;
+  loop_end_code = p_code_ct_create(PCODE_LOOP_AGAIN, "AGAIN");
+  loop_end_code->val.l = ijump;
+  program_add_p_code(current_PROG, loop_end_code);
+  current_BEGIN = ct_pop(CT_BEGIN); // POP back the old loop
+  logg("LOOP", "POP");
+}
+
 
 static void exit_create() {
   logg("EXIT", "");

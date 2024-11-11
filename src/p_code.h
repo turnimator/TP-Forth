@@ -36,6 +36,9 @@ typedef enum jump_table_idx {
   PCODE_EXEC = 13,
   PCODE_SPAWN =14,
   PCODE_STRING = 15,
+  PCODE_LOOP_BEGIN = 16,
+  PCODE_LOOP_AGAIN = 17,
+  PCODE_LOOP_UNTIL = 18,
   PCODE_LAST
 
 } jumptable_idx_t;

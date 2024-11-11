@@ -19,7 +19,7 @@ typedef struct ctstack {
   int npca;
 } ctstack_t;
 
-typedef enum ct_stack_idx { CT_IF, CT_DO } ct_stack_idx_t;
+typedef enum ct_stack_idx { CT_IF, CT_DO, CT_BEGIN } ct_stack_idx_t;
 
 typedef struct compiletime_stack_array {
   ctstack_t ct[5];
