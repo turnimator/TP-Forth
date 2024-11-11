@@ -5,7 +5,7 @@
  *      Author: Jan Atle Ramsli
  *
  */
-//#define DEBUG
+// #define DEBUG
 
 #include "parser.h"
 
@@ -144,7 +144,7 @@ ALL ACTIONS MUST BE PERFORMED HERE
 parser_state_t parse_word(parser_state_t state, char *tok) {
   logg("WORD", tok);
   if (tok[0] == '\"') {
-	strcpy(string_buffer, tok);
+    strcpy(string_buffer, tok);
     return STRING_EXPECTING_QUOTE;
   }
   if (strcmp(tok, ":") == 0) {
@@ -188,31 +188,36 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
     return EXPECTING_ANY;
   }
   if (strcmp(tok, "(") == 0) {
-    return PS_COMMENT;
+    return PAREN_COMMENT_EXPECTING_RIGHT_PAREN;
   }
 
   if (strcmp(tok, "\\") == 0) {
-    return BS_COMMENT;
+    return BACKSPACE_COMMENT_EXPECTING_NEWLINE;
   }
 
   program_add(current_PROG, tok);
   return EXPECTING_ANY;
 }
 
-parser_state_t parse_ps_comment(parser_state_t state, char *tok) {
+parser_state_t parse_comment_look_for_right_paren(parser_state_t state,
+                                                  char *tok) {
   logg("PS COMMENT", tok);
   if (strcmp(tok, ")") == 0) {
     return EXPECTING_ANY;
   }
-  return PS_COMMENT;
+  return PAREN_COMMENT_EXPECTING_RIGHT_PAREN;
 }
 
-parser_state_t parse_bs_comment(parser_state_t state, char *tok) {
+/**
+ This will not work because strtok swallows newlines.
+ This must be caucht before strtok gets it.
+*/
+parser_state_t parse_comment_look_for_newline(parser_state_t state, char *tok) {
   logg("BS COMMENT", tok);
   if (strcmp(tok, "\n") == 0) {
     return EXPECTING_ANY;
   }
-  return BS_COMMENT;
+  return BACKSPACE_COMMENT_EXPECTING_NEWLINE;
 }
 
 parser_state_t parse_colon(parser_state_t state, char *tok) {
@@ -236,24 +241,24 @@ parser_state_t parse_colon_name(parser_state_t state, char *tok) {
   return EXPECTING_ANY;
 }
 
-parser_state_t parse_error(parser_state_t state, char *tok){
-	printf("PARSE ERROR %s\n", tok);
-	return EXPECTING_ANY;
-} 
+parser_state_t parse_error(parser_state_t state, char *tok) {
+  printf("PARSE ERROR %s\n", tok);
+  return EXPECTING_ANY;
+}
 
 parser_state_t parse_string_expecting_quote(parser_state_t state, char *tok) {
-	logg("Waiting for \"",tok);
-	if (tok[strlen(tok)-1]=='\"'){
-		strcat(string_buffer, tok);
-		string_create(string_buffer);
-		return EXPECTING_ANY;
-	} else {
-		strcat(string_buffer, tok);
-		strcat(string_buffer, " ");
-		return STRING_EXPECTING_QUOTE;
-	}
+  logg("Waiting for \"", tok);
+  if (tok[strlen(tok) - 1] == '\"') {
+    strcat(string_buffer, tok);
+    string_create(string_buffer);
+    return EXPECTING_ANY;
+  } else {
+    strcat(string_buffer, tok);
+    strcat(string_buffer, " ");
+    return STRING_EXPECTING_QUOTE;
+  }
 }
-	
+
 static parser_state_t state = EXPECTING_ANY;
 
 typedef parser_state_t (*parse_func)(parser_state_t state, char *);
@@ -268,17 +273,18 @@ typedef struct parse_table_entry {
 } ptentry_t, *ptentry_p;
 
 /*
-    COLON = 0,
+When making changes, remember to copy from parser.h and paste here:
+   COLON = 0,
     COLON_EXPECTING_NAME = 1,
     CREATE = 2,
     CREATE_EXPECTING_NAME =3,
     VARIABLE = 4,
     VARIABLE_EXPECTING_NAME = 5,
-    PS_COMMENT =6,
-    BS_COMMENT = 7,
+    PAREN_COMMENT_EXPECTING_RIGHT_PAREN =6,
+    BACKSPACE_COMMENT_EXPECTING_NEWLINE = 7,
     EXPECTING_ANY = 8,
     PS_ERROR = 9,
-    STRING_EXPECTING_QUOTE
+    STRING_EXPECTING_QUOTE=10
 */
 static ptentry_t pftable[] = {{":", strcmp, parse_colon},
                               {"", cmpany, parse_colon_name},
@@ -286,11 +292,11 @@ static ptentry_t pftable[] = {{":", strcmp, parse_colon},
                               {"", cmpany, parse_variable_name},
                               {"VARIABLE", strcmp, parse_variable},
                               {"", cmpany, parse_variable_name},
-                              {"(", strcmp, parse_ps_comment},
-                              {"\\", strcmp, parse_bs_comment},
+                              {"(", strcmp, parse_comment_look_for_right_paren},
+                              {"\\", strcmp, parse_comment_look_for_newline},
                               {"", cmpany, parse_word},
                               {"", cmpany, parse_error},
-                              {"",cmpany, parse_string_expecting_quote}};
+                              {"", cmpany, parse_string_expecting_quote}};
 
 /**
 
@@ -305,6 +311,7 @@ program_p parse(ftask_p task, char *source) {
   printf("Program before parse:\n");
   program_dump(current_PROG, task);
 #endif
+
   /*
   for each token in the input look up the parse table entry corresponding to the
   current state (the entry no in the table) feed the current token to the
@@ -312,6 +319,16 @@ program_p parse(ftask_p task, char *source) {
   the corresponding parse function (parse_func)
   */
   for (char *tok = strtok(source, delim); tok; tok = strtok(0, delim)) {
+    if (*tok == '\\') {
+      tok++;
+      while (*tok != '\n') {
+        tok++;
+      }
+      source = tok;
+      tok = strtok(source, delim);
+      state = EXPECTING_ANY;
+    }
+
     if (pftable[state].cmpf(tok, pftable[state].tok) == 0) {
       state = pftable[state].f(state, tok);
     }
