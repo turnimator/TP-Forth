@@ -193,6 +193,14 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
     loop_create();
     return EXPECTING_ANY;
   }
+  if (strcmp(tok, "BEGIN") == 0) {
+    begin_create();
+    return EXPECTING_ANY;
+  }
+  if (strcmp(tok, "AGAIN") == 0) {
+    again_create();
+    return EXPECTING_ANY;
+  }
 
   if (strcmp(tok, "EXIT") == 0) {
     exit_create();
@@ -356,7 +364,7 @@ program_p parse(ftask_p task, char *source) {
       while (*tok != ')') {
         tok++;
       }
-      source = tok;
+      source = tok + 1;
       tok = strtok(source, delim);
       state = EXPECTING_ANY;
     }

@@ -82,8 +82,8 @@ Dictionary entries have their own program
 static void ef_do(program_p prog, ftask_p task) {
   ll_push(task, d_pop(task));
   lu_push(task, d_pop(task));
-  ld_push(task,(lu_tos(task)-ll_tos(task)>0)?1:-1);
-  
+  ld_push(task, (lu_tos(task) - ll_tos(task) > 0) ? 1 : -1);
+
 #ifdef DEBUG
   printf("DO FROM %d TO %d \n", ll_tos(task), lu_tos(task));
 #endif
@@ -137,7 +137,7 @@ static inline void ef_if(program_p prog, ftask_p task) {
 static inline void ef_else(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
   // printf("ELSE CAUGHT IT, SKIP TO THEN\n");
-  task->pcp += pcp->val.l;
+  task->pcp += pcp->val.l; /// ?? Not sure!
 }
 
 static inline void ef_then(program_p prog, ftask_p task) {
@@ -211,10 +211,23 @@ static inline void ef_string(program_p prog, ftask_p task) {
   task->pcp++;
 }
 
+static void ef_begin(program_p prog, ftask_p task) {
+	logg("BEGIN", "");
+  task->pcp++;
+  r_push(task, task->pcp); // point to next code after DO
+}
+
+static void ef_again(program_p prog, ftask_p task) {
+	task->pcp = r_tos(task);
+	logg("AGAIN", "");
+}
+
+static void ef_until(program_p prog, ftask_p task) {}
+
 /*
 This is kind of hairy, just make sure that the place in the array farray[]
 corresponds to the PCODE type. from p_code.h:
-   PCODE_ERROR = 0,
+  PCODE_ERROR = 0,
   PCODE_BUILTIN = 1,
   PCODE_NUMBER = 2,
   PCODE_VARIABLE = 3,
@@ -230,11 +243,16 @@ corresponds to the PCODE type. from p_code.h:
   PCODE_EXEC = 13,
   PCODE_SPAWN =14,
   PCODE_STRING = 15,
-  PCODE_LAST*/
+  PCODE_LOOP_BEGIN = 16,
+  PCODE_LOOP_AGAIN = 17,
+  PCODE_LOOP_UNTIL = 18,
+  PCODE_LAST
+*/
 static cbp_exec_func p_code_jump_table[] = {
-    ef_error, ef_primitive, cb_ef_number, ef_variable, ef_dict_entry, ef_if,
-    ef_do,    ef_loop_end,  ef_i_cb,      ef_else,     ef_then,       ef_exit,
-    ef_defer, ef_exec,      ef_spawn,     ef_string,   ef_last_code};
+    ef_error,  ef_primitive, cb_ef_number, ef_variable, ef_dict_entry,
+    ef_if,     ef_do,        ef_loop_end,  ef_i_cb,     ef_else,
+    ef_then,   ef_exit,      ef_defer,     ef_exec,     ef_spawn,
+    ef_string, ef_begin,     ef_again,     ef_until,    ef_last_code};
 
 char *tstr(jumptable_idx_t t) {
   static char *jts_sarray[] = {"PCODE_ERROR", "PCODE_BUILTIN", "PCODE_NUMBER",
