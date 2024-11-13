@@ -123,9 +123,20 @@ static void again_create() {
   loop_end_code->val.l = ijump;
   program_add_p_code(current_PROG, loop_end_code);
   current_BEGIN = ct_pop(CT_BEGIN); // POP back the old loop
-  logg("LOOP", "POP");
+  logg("AGAIN", "POP");
 }
 
+static void until_create() {
+  int ijump;
+  ijump = current_BEGIN->val.l;
+  logg("BEGIN", "UNTIL");
+  p_code_p loop_end_code;
+  loop_end_code = p_code_ct_create(PCODE_LOOP_UNTIL, "UNTIL");
+  loop_end_code->val.l = ijump;
+  program_add_p_code(current_PROG, loop_end_code);
+  current_BEGIN = ct_pop(CT_BEGIN); // POP back the old loop
+  logg("UNTIL", "POP");
+}
 
 static void exit_create() {
   logg("EXIT", "");
@@ -199,6 +210,10 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   }
   if (strcmp(tok, "AGAIN") == 0) {
     again_create();
+    return EXPECTING_ANY;
+  }
+  if (strcmp(tok, "UNTIL") == 0) {
+    until_create();
     return EXPECTING_ANY;
   }
 

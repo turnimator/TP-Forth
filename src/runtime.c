@@ -212,17 +212,28 @@ static inline void ef_string(program_p prog, ftask_p task) {
 }
 
 static void ef_begin(program_p prog, ftask_p task) {
-	logg("BEGIN", "");
+  logg("BEGIN", "");
   task->pcp++;
+  ll_tos(task) = 0;        // Loppvar
   r_push(task, task->pcp); // point to next code after DO
 }
 
 static void ef_again(program_p prog, ftask_p task) {
-	task->pcp = r_tos(task);
-	logg("AGAIN", "");
+  ll_tos(task)++; // Loppvar
+  task->pcp = r_tos(task);
+  logg("AGAIN", "");
 }
 
-static void ef_until(program_p prog, ftask_p task) {}
+static void ef_until(program_p prog, ftask_p task) {
+  long flag = d_pop(task);
+  if (flag == F_TRUE) {
+    task->pcp++;
+    r_pop(task);
+  } else {
+    task->pcp = r_tos(task);
+  }
+  ll_tos(task)++; // Loppvar
+}
 
 /*
 This is kind of hairy, just make sure that the place in the array farray[]
