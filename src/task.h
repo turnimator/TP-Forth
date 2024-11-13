@@ -32,13 +32,13 @@ typedef struct ftask {
   int prog_top;
   program_p program;
   p_code_p *pcp; // Program counter pointer
-  p_code_p* r_stack[LOOP_STACK_SIZE];
+  p_code_p* r_stack[LOOP_STACK_SIZE]; // Poor man's return stack.
   long r_top;
   int loop_upper[LOOP_STACK_SIZE];
   int lu_top;
   int loop_lower[LOOP_STACK_SIZE];
   int ll_top;
-  int ld[LOOP_STACK_SIZE];
+  int ld[LOOP_STACK_SIZE]; // LOOP VARIABLES
   int ld_top;
 } ftask_t, *ftask_p;
 
