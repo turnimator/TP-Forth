@@ -14,10 +14,10 @@
 #include <string.h>
 
 int isNumber(char *tok) {
-	if (! isdigit(*tok) && *tok != '-'){
-		return 0;
-	}
-  for (char *p = tok+1; *p; p++) {
+  if (!isdigit(*tok) && *tok != '-') {
+    return 0;
+  }
+  for (char *p = tok + 1; *p; p++) {
     if (!isdigit(*p)) {
       return 0;
     }
@@ -85,31 +85,31 @@ p_code_p p_code_create_I() {
   return rv;
 }
 
-p_code_p p_code_defer_create(){
-	p_code_p rv = p_code_create_empty("DEFER");
+p_code_p p_code_defer_create() {
+  p_code_p rv = p_code_create_empty("DEFER");
   rv->jtidx = PCODE_DEFER;
   return rv;
 }
 
-p_code_p p_code_exec_create(){
-	p_code_p rv = p_code_create_empty("EXEC");
+p_code_p p_code_exec_create() {
+  p_code_p rv = p_code_create_empty("EXEC");
   rv->jtidx = PCODE_EXEC;
   return rv;
 }
 
-p_code_p p_code_spawn_create(){
-	p_code_p rv = p_code_create_empty("SPAWN");
+p_code_p p_code_spawn_create() {
+  p_code_p rv = p_code_create_empty("SPAWN");
   rv->jtidx = PCODE_SPAWN;
   return rv;
 }
 
-p_code_p p_code_string_create(char*s){
-	p_code_p rv = p_code_create_empty("STR");
-	rv->jtidx=PCODE_STRING;
-	rv->val.s = malloc(strlen(s));
-	strcpy(rv->val.s, s+1);
-	rv->val.s[strlen(rv->val.s)-1] = 0;
-	return rv;
+p_code_p p_code_string_create(char *s) {
+  p_code_p rv = p_code_create_empty("STR");
+  rv->jtidx = PCODE_STRING;
+  rv->val.s = malloc(strlen(s));
+  strcpy(rv->val.s, s + 1);
+  rv->val.s[strlen(rv->val.s) - 1] = 0;
+  return rv;
 }
 
 /**
@@ -122,17 +122,17 @@ p_code_p p_code_compile_word(char *src) {
   if (isNumber(src)) {
     return p_code_create_long(atol(src));
   }
-  if (*src=='\"'){
-	return (p_code_string_create(src));
+  if (*src == '\"') {
+    return (p_code_string_create(src));
   }
-  if (strcmp(src, "\'")==0){
-	return p_code_defer_create();
+  if (strcmp(src, "\'") == 0) {
+    return p_code_defer_create();
   }
-  if (strcmp(src, "EXEC")==0){
-	return p_code_exec_create();
+  if (strcmp(src, "EXEC") == 0) {
+    return p_code_exec_create();
   }
-  if (strcmp(src, "SPAWN")==0){
-	return p_code_spawn_create();
+  if (strcmp(src, "SPAWN") == 0) {
+    return p_code_spawn_create();
   }
 
   int idx = variable_lookup(src);
@@ -141,6 +141,7 @@ p_code_p p_code_compile_word(char *src) {
       return p_code_create_variable(idx);
     }
   }
+
   idx_builtin_p ip = builtin_lookup(src);
   if (ip) {
     return p_code_create_primitive(ip);

@@ -14,6 +14,7 @@
 #include "p_code.h"
 #include "program.h"
 #include "task.h"
+#include "variable.h"
 
 extern int STEP;
 
@@ -43,7 +44,13 @@ static inline void ef_primitive(program_p prog, ftask_p task) {
 
 static inline void ef_variable(program_p prog, ftask_p task) {
   p_code_p pcp = *task->pcp;
-  d_push(task, pcp->val.var_idx);
+  // d_push(task, pcp->val.var_idx);
+  var_p v = variable_get(pcp->val.var_idx);
+  if (!v) {
+    printf("\nVariable not found!\n");
+  } else {
+    d_push(task, (long)v);
+  }
   task->pcp++;
 }
 

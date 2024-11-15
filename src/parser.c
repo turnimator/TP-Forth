@@ -154,11 +154,32 @@ static parser_state_t parse_variable(parser_state_t state, char *name) {
   return VARIABLE_EXPECTING_NAME;
 }
 
+static parser_state_t parse_create(parser_state_t state, char *name) {
+  logg("CREATE", name);
+  return CREATE_EXPECTING_NAME;
+}
+
 static parser_state_t parse_variable_name(parser_state_t state, char *name) {
   logg("VARIABLE_EXPECTING_NAME", name);
   if (strcmp(name, "VARIABLE") == 0) {
     printf("parse error variable %s\n", name);
     return VARIABLE_EXPECTING_NAME;
+  }
+#ifdef DEBUG
+  printf("adding variable %s\n", name);
+#endif
+  var_p vp = variable_add(name);
+#ifdef DEBUG
+  printf("var_p index=%d", vp->vt_idx);
+#endif
+  return EXPECTING_ANY;
+}
+
+static parser_state_t parse_create_name(parser_state_t state, char *name) {
+  logg("CREATE_EXPECTING_NAME", name);
+  if (strcmp(name, "CREATE") == 0) {
+    printf("parse error create %s\n", name);
+    return CREATE_EXPECTING_NAME;
   }
 #ifdef DEBUG
   printf("adding variable %s\n", name);
@@ -225,6 +246,10 @@ parser_state_t parse_word(parser_state_t state, char *tok) {
   if (strcmp(tok, "VARIABLE") == 0) {
     return VARIABLE_EXPECTING_NAME;
   }
+  if (strcmp(tok, "CREATE") == 0) {
+    return CREATE_EXPECTING_NAME;
+  }
+
   if (strcmp(tok, ";") ==
       0) { // will crash the system if not in colon definition
     current_PROG = ct_prog_pop();

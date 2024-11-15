@@ -122,7 +122,6 @@ program_p program_create(char *name) {
 
 void program_add_p_code(program_p prog, p_code_p pcp) {
   logg(prog->name, pcp->name);
-
   prog->npcp_array++;
   if (!prog->pcp_array) {
     prog->pcp_array = malloc(sizeof(p_code_p) * (prog->npcp_array + 1));

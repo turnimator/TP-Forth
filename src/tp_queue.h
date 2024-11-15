@@ -10,7 +10,7 @@
 #define TP_QUEUE_H_
 
 #define MAX_QUEUES 128
-#define MAX_Q_NAME_LEN 12
+#define MAX_Q_NAME_LEN 128
 
 typedef struct tp_queue {
 	char name[MAX_Q_NAME_LEN];

@@ -53,6 +53,7 @@ tpq_p q_create(char* name, int size){
 	}
 	q->full = 0;
 	strncpy(q->name, name,MAX_Q_NAME_LEN);
+	
 	q_reg_add(q);
 	return q;
 }
