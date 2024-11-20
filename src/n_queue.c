@@ -7,67 +7,66 @@
  */
 
 #include "n_queue.h"
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+#include <sys/socket.h>
 
 /**
  name - address/port e.g. 192.168.7.4/4555
 */
 nq_p nq_create(char *name, int len) {
-  struct addrinfo hints;
-  struct addrinfo *result;
-  int s;
-  socklen_t length;
-  struct addrinfo *rptr;
-
   /* extract port from address*/
-  char *p = strtok(name, "/");
-  if (!p) {
+  char *address_part = strtok(name, "/");
+  if (!address_part) {
     printf("Error: Queue name must be on form nnn.nnn.nnn.nnn/nnnn");
     return 0;
   }
-  
+  char *port_part = strtok(0, "/");
+  printf("Creating queue with address %s and port %s\n", address_part,
+         port_part);
   nq_p q = malloc(sizeof(nq_t));
   q->bufsz = len;
   q->buf = malloc(q->bufsz);
-
-  memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_DGRAM;
-
-  sprintf(q->buf, "%u", q->port);
-  if ((s = getaddrinfo(name, q->buf, &hints, &result)) != 0) {
-    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
-    exit(EXIT_FAILURE);
-  }
-
-  /* Scan through the list of address structures returned by
-     getaddrinfo. Stop when the the socket and connect calls are successful. */
-  for (rptr = result; rptr != NULL; rptr = rptr->ai_next) {
-    q->sock = socket(rptr->ai_family, rptr->ai_socktype, rptr->ai_protocol);
-    if (q->sock == -1)
-      continue;
-
-    break;
-  }
-
-  if (rptr == NULL) {
-    fprintf(stderr, "Not able to make socket\n");
-    return 0;
-  }
-
-  freeaddrinfo(result);
+  q->port = atoi(port_part);
+  bzero(&q->servaddr, sizeof(q->servaddr));
+  q->servaddr.sin_addr.s_addr = inet_addr(address_part);
+  q->servaddr.sin_port = htons(q->port);
+  q->servaddr.sin_family = AF_INET;
+  q->readsock = socket(AF_INET, SOCK_DGRAM, 0);
   return q;
 }
 
 char *nq_read(nq_p q) {
-  ssize_t numbytes;
-  if ((numbytes = recvfrom(q->sock, q->buf, q->bufsz, 0, NULL, NULL)) == -1)
+  socklen_t numbytes = sizeof(struct sockaddr_in);
+  if (bind(q->readsock, (struct sockaddr *)&q->servaddr, sizeof(q->servaddr)) ==
+      -1) {
+    perror("bind");
+  }
+
+  if ((numbytes = recvfrom(q->readsock, q->buf, q->bufsz, 0,
+                           (struct sockaddr *)&q->servaddr, &numbytes)) == -1)
     perror("recvfrom");
   return q->buf;
 }
 
-int nq_write(nq_p nq, char *buf) {}
+int nq_write(nq_p nq, char *buf) {
+  // connect to server
+  if (connect(nq->readsock, (struct sockaddr *)&nq->servaddr,
+              sizeof(nq->servaddr)) < 0) {
+    printf("\n Error : Connect Failed \n");
+    return -1;
+  }
+  if (sendto(nq->readsock, buf, nq->bufsz, 0, (struct sockaddr *)&nq->servaddr,
+             sizeof(nq->servaddr)) == -1) {
+    perror("sendTo");
+    return -1;
+  }
+  return 0;
+}
 
 void nq_destroy(nq_p q) {}

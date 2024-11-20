@@ -9,6 +9,7 @@
 
 #include "custom.h"
 #include "dictionary.h"
+#include "n_queue.h"
 #include "program.h"
 #include "task.h"
 #include "tp_queue.h"
@@ -282,7 +283,7 @@ static void d_div(ftask_p task) {
 
 static void d_i(ftask_p task) {}
 
-//////// --------- QUEUES ---------- //////
+//////// ---------| QUEUES |---------- //////
 static void d_q_create(ftask_p task) {
   long size = d_pop(task);
   char *name = (char *)d_pop(task);
@@ -323,7 +324,26 @@ static void d_q_dot(ftask_p task) {
   printf("%s(%d,%s)", q->name, q->msz, q->full ? "full" : "empty");
 }
 
-/////////////////// IO ////////////////////
+static void d_nq_create(ftask_p task) {
+  long size = d_pop(task);
+  char *name = (char *)d_pop(task);
+  nq_p q = nq_create(name, size);
+  d_push(task, (long)q);
+}
+
+static void d_nq_read(ftask_p task) {
+  nq_p q = (nq_p)d_pop(task);
+  d_push(task, (long)nq_read(q));
+}
+
+static void d_nq_write(ftask_p task) {
+  char *message = (char *)d_pop(task);
+  nq_p q = (nq_p)d_pop(task);
+  printf("Writing %s to %d\n", message, q->servaddr.sin_addr.s_addr);
+  nq_write(q, message);
+}
+
+///////////////////------| IO |--------- ////////////////////
 static void d_dot(ftask_p task) {
   if (task->d_top <= 0) {
     printf(" . Data Stack Underflow");
@@ -401,7 +421,7 @@ static void d_variable_store_at(ftask_p task) {
   long val = d_pop(task);
   long array_index = d_pop(task);
   var_p v = (var_p)d_pop(task);
-  
+
   if (array_index > v->val.l) {
     printf("Array index out of range!");
     return;
@@ -664,6 +684,10 @@ void builtin_build_db() {
   builtin_add("<Q", d_q_read);
   builtin_add("Q.", d_q_dot);
   builtin_add("MS", d_ms);
+  builtin_add("NQCREATE", d_nq_create);
+  builtin_add("NQ>", d_nq_write);
+  builtin_add("<NQ", d_nq_read);
+
   add_custom_builtins();
   //    builtin_db_dump();
   index_names();

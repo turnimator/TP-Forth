@@ -15,7 +15,9 @@
 #include <sys/types.h>
 
 typedef struct n_queue {
-  int sock;
+  struct sockaddr_in servaddr;
+  int readsock;
+  int writesock;
   int port;
   char *buf;
   int bufsz;
