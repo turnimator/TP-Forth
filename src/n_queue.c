@@ -33,36 +33,41 @@ nq_p nq_create(char *name, int len) {
   q->bufsz = len;
   q->buf = malloc(q->bufsz);
   q->port = atoi(port_part);
-  bzero(&q->servaddr, sizeof(q->servaddr));
-  q->servaddr.sin_addr.s_addr = inet_addr(address_part);
-  q->servaddr.sin_port = htons(q->port);
-  q->servaddr.sin_family = AF_INET;
-  q->readsock = socket(AF_INET, SOCK_DGRAM, 0);
+  bzero(&q->listen_addr, sizeof(q->listen_addr));
+  q->listen_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  q->listen_addr.sin_port = htons(q->port);
+  q->listen_addr.sin_family = AF_INET;
+  q->listen_socket = socket(AF_INET, SOCK_DGRAM, 0);
+  if (bind(q->listen_socket, (struct sockaddr *)&q->listen_addr,
+           sizeof(q->listen_addr)) == -1) {
+    perror("bind");
+  }
+  q->connect_addr.sin_addr.s_addr = inet_addr(address_part);
+  q->connect_addr.sin_port = htons(q->port);
+  q->connect_addr.sin_family = AF_INET;
+  q->client_socket = socket(AF_INET, SOCK_DGRAM, 0);
   return q;
 }
 
 char *nq_read(nq_p q) {
   socklen_t numbytes = sizeof(struct sockaddr_in);
-  if (bind(q->readsock, (struct sockaddr *)&q->servaddr, sizeof(q->servaddr)) ==
-      -1) {
-    perror("bind");
-  }
-
-  if ((numbytes = recvfrom(q->readsock, q->buf, q->bufsz, 0,
-                           (struct sockaddr *)&q->servaddr, &numbytes)) == -1)
+  struct sockaddr_in cliaddr;
+  if ((numbytes = recvfrom(q->listen_socket, q->buf, q->bufsz, 0,
+                           (struct sockaddr *)&cliaddr, &numbytes)) == -1)
     perror("recvfrom");
   return q->buf;
 }
 
 int nq_write(nq_p nq, char *buf) {
   // connect to server
-  if (connect(nq->readsock, (struct sockaddr *)&nq->servaddr,
-              sizeof(nq->servaddr)) < 0) {
+  if (connect(nq->listen_socket, (struct sockaddr *)&nq->listen_addr,
+              sizeof(nq->listen_addr)) < 0) {
     printf("\n Error : Connect Failed \n");
     return -1;
   }
-  if (sendto(nq->readsock, buf, nq->bufsz, 0, (struct sockaddr *)&nq->servaddr,
-             sizeof(nq->servaddr)) == -1) {
+  if (sendto(nq->listen_socket, buf, nq->bufsz, 0,
+             (struct sockaddr *)&nq->listen_addr,
+             sizeof(nq->listen_addr)) == -1) {
     perror("sendTo");
     return -1;
   }

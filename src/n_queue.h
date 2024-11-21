@@ -15,9 +15,11 @@
 #include <sys/types.h>
 
 typedef struct n_queue {
-  struct sockaddr_in servaddr;
-  int readsock;
-  int writesock;
+  struct sockaddr_in listen_addr, connect_addr;
+  int listen_socket; // Because of bind/connect, I need one server socket and
+                     // one client socket
+  int client_socket; // Let's use server sockets for read and client sockets for
+                     // write
   int port;
   char *buf;
   int bufsz;

@@ -339,7 +339,7 @@ static void d_nq_read(ftask_p task) {
 static void d_nq_write(ftask_p task) {
   char *message = (char *)d_pop(task);
   nq_p q = (nq_p)d_pop(task);
-  printf("Writing %s to %d\n", message, q->servaddr.sin_addr.s_addr);
+  printf("Writing %s to %d\n", message, q->connect_addr.sin_addr.s_addr);
   nq_write(q, message);
 }
 

@@ -1,3 +1,4 @@
 VARIABLE myq
-myq " 127.0.0.1/5555" 128 NQCREATE !
+myq " 127.0.0.1/5000" 128 NQCREATE !
 .s
+myq <NQ . CR
