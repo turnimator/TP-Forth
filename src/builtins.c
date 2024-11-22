@@ -339,10 +339,14 @@ static void d_nq_read(ftask_p task) {
 static void d_nq_write(ftask_p task) {
   char *message = (char *)d_pop(task);
   nq_p q = (nq_p)d_pop(task);
-  printf("Writing %s to %d\n", message, q->connect_addr.sin_addr.s_addr);
+  //  printf("Writing %s to %d\n", message, q->connect_addr.sin_addr.s_addr);
   nq_write(q, message);
 }
 
+static void d_nq_destroy(ftask_p task) {
+  nq_p q = (nq_p)d_pop(task);
+  nq_destroy(q);
+}
 ///////////////////------| IO |--------- ////////////////////
 static void d_dot(ftask_p task) {
   if (task->d_top <= 0) {
@@ -685,6 +689,7 @@ void builtin_build_db() {
   builtin_add("Q.", d_q_dot);
   builtin_add("MS", d_ms);
   builtin_add("NQCREATE", d_nq_create);
+  builtin_add("NQDESTROY", d_nq_destroy);
   builtin_add("NQ>", d_nq_write);
   builtin_add("<NQ", d_nq_read);
 
