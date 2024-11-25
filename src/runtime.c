@@ -162,7 +162,7 @@ static inline void ef_last_code(program_p prog, ftask_p task) {
   task->pcp++;
 }
 
-// Place next P-Code on stack instead of executing
+// Place next smtok on stack instead of executing
 static inline void ef_defer(program_p prog, ftask_p task) {
   logg("DEFER", "");
   task->pcp++; // Point to the deferred word
@@ -170,7 +170,7 @@ static inline void ef_defer(program_p prog, ftask_p task) {
   task->pcp++; // Skip the deferred word
 }
 
-static inline void ef_exec(program_p prog, ftask_p task) {
+void ef_exec(program_p prog, ftask_p task) {
   r_push(task, task->pcp);
   smtok_p *to_be_executed = (smtok_p *)d_pop(task);
   task->pcp = to_be_executed;
@@ -188,7 +188,7 @@ static void *spawnfunc(void *v) {
 static pthread_t tid[128];
 static int idx_tid = 0;
 
-static inline void ef_spawn(program_p prog, ftask_p task) {
+void ef_spawn(program_p prog, ftask_p task) {
   logg("SPAWNING", "TASK");
   r_push(task, task->pcp);
   smtok_p *to_be_executed = (smtok_p *)d_pop(task);

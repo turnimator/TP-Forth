@@ -11,6 +11,8 @@
 #include "dictionary.h"
 #include "n_queue.h"
 #include "program.h"
+#include "runtime.h"
+#include "smtok.h"
 #include "task.h"
 #include "tp_queue.h"
 #include "variable.h"
@@ -64,6 +66,16 @@ program_p prog_tos(ftask_p task) {
 void prog_push(ftask_p task, program_p p) {
   task->prog_stack[task->prog_top] = p;
   task->prog_top++;
+}
+
+static void d_string_exec(ftask_p task) {
+  char *s = (char *)d_pop(task);
+  dict_entry_p dictentry = dict_lookup(0, s);
+  if (!dictentry) {
+    printf("No such word: %s\n", s);
+    return;
+  }
+  run_prog(task, dictentry->prog);
 }
 
 /**
@@ -670,6 +682,7 @@ void builtin_build_db() {
   builtin_add("STEP", d_step);
   builtin_add("EXIT", f_exit);
   builtin_add("DICT", f_dict_dump);
+  builtin_add("SEXEC", d_string_exec);
   builtin_add("VARS", v_dump);
   builtin_add(">r", d_r);
   builtin_add("r>", r_d);
