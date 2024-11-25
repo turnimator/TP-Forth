@@ -63,9 +63,9 @@ program_p prog_pop(ftask_p task);
 program_p prog_tos(ftask_p task);
 
 
-void r_push(ftask_p task, p_code_p* prog);
-p_code_p* r_pop(ftask_p task);
-p_code_p* r_tos(ftask_p task);
+void r_push(ftask_p task, smtok_p* prog);
+smtok_p* r_pop(ftask_p task);
+smtok_p* r_tos(ftask_p task);
 
 
 #endif /* BUILTINS_H_ */

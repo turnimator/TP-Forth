@@ -10,12 +10,12 @@
 #define COMPILER_H_
 #include "builtins.h"
 #include "dictionary.h"
-#include "p_code.h"
+#include "smtok.h"
 
 // You should never use more than 3 nested IFs, DOs or other control structures,
 // here's 15
 typedef struct ctstack {
-  p_code_p pca[15];
+  smtok_p pca[15];
   int npca;
 } ctstack_t;
 
@@ -28,10 +28,10 @@ typedef struct compiletime_stack_array {
 void ct_prog_push(program_p prog);
 program_p ct_prog_pop();
 
-void ct_push(ct_stack_idx_t, p_code_p cond);
-p_code_p ct_pop(ct_stack_idx_t);
-p_code_p ct_tos(ct_stack_idx_t);
-p_code_p ct_create(jumptable_idx_t pctyp);
+void ct_push(ct_stack_idx_t, smtok_p cond);
+smtok_p ct_pop(ct_stack_idx_t);
+smtok_p ct_tos(ct_stack_idx_t);
+smtok_p ct_create(jumptable_idx_t pctyp);
 
 
 #endif /* COMPILER_H_ */

@@ -7,7 +7,7 @@
  */
 #include "compiler.h"
 #include "logg.h"
-#include "p_code.h"
+#include "smtok.h"
 
 #define DEBUG
 
@@ -30,35 +30,35 @@ program_p ct_prog_pop()
 
 static ct_t Ct_stack;
  
-void cts_push(ctstack_t st,p_code_p cond)
+void cts_push(ctstack_t st,smtok_p cond)
 {
 	st.pca[st.npca] = cond;
 	st.npca++;
 }
 
-p_code_p cts_pop(ctstack_t st)
+smtok_p cts_pop(ctstack_t st)
 {
 	st.npca--;
 	return st.pca[st.npca];
 }
 
-p_code_p cts_tos(ctstack_t st)
+smtok_p cts_tos(ctstack_t st)
 {
 	return st.pca[st.npca - 1];
 }
 
 
-void ct_push(ct_stack_idx_t i,p_code_p cond)
+void ct_push(ct_stack_idx_t i,smtok_p cond)
 {
 	cts_push(Ct_stack.ct[i], cond);
 }
 
-p_code_p ct_pop(ct_stack_idx_t i)
+smtok_p ct_pop(ct_stack_idx_t i)
 {
 	return cts_pop(Ct_stack.ct[i]);
 }
 
-p_code_p ct_tos(ct_stack_idx_t i)
+smtok_p ct_tos(ct_stack_idx_t i)
 {
 	return cts_tos(Ct_stack.ct[i]);
 }

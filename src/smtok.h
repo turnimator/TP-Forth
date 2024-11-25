@@ -1,23 +1,23 @@
 /*
- * p_code.h
+ * 
  *
  *  Created on: Sep 27, 2024
  *      Author: Jan Atle Ramsli
  *
  */
 
-#ifndef P_CODE_H_
-#define P_CODE_H_
+#ifndef SMTOK_H_
+#define SMTOK_H_
 
 #include "builtins.h"
 #include "variable.h"
-typedef union p_code_val {
+typedef union smtok_val {
   builtin_p pp;
   long l;
   char* s;
   int var_idx; // Index into variable table
   program_p prog;
-} p_val_t, *p_val_p;
+} smtok_val_t, *smtok_val_p;
 
 typedef enum jump_table_idx {
   PCODE_ERROR = 0,
@@ -43,17 +43,17 @@ typedef enum jump_table_idx {
 
 } jumptable_idx_t;
 
-typedef struct p_code {
+typedef struct smtok {
   char *name;
   jumptable_idx_t jtidx;
-  p_val_t val;
-} p_code_t, *p_code_p;
+  smtok_val_t val;
+} smtok_t, *smtok_p;
 
 int isNumber(char *tok);
 
-p_code_p p_code_compile_word(char *);
-p_code_p p_code_ct_create(jumptable_idx_t, char*name);
-p_code_p p_code_create_variable(int);
-void p_code_delete(p_code_p pc);
+smtok_p smtok_compile_word(char *);
+smtok_p smtok_ct_create(jumptable_idx_t, char*name);
+smtok_p smtok_create_variable(int);
+void smtok_delete(smtok_p pc);
 
-#endif /* P_CODE_H_ */
+#endif /* SMTOK_H_ */

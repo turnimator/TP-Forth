@@ -39,17 +39,17 @@ static void bdb_add(builtin_p bip) {
   DB_builtins[bip->op] = bip;
 }
 //// RETURN (LOOPS)
-void r_push(ftask_p task, p_code_p *p) {
+void r_push(ftask_p task, smtok_p *p) {
   task->r_stack[task->r_top] = p;
   task->r_top++;
 }
 
-p_code_p *r_pop(ftask_p task) {
+smtok_p *r_pop(ftask_p task) {
   task->r_top--;
   return task->r_stack[task->r_top];
 }
 
-p_code_p *r_tos(ftask_p task) { return task->r_stack[task->r_top - 1]; }
+smtok_p *r_tos(ftask_p task) { return task->r_stack[task->r_top - 1]; }
 
 ///// PROGRAM (SUBROUTINES=DICT_ENTRIES=COLON DEFS)///////
 program_p prog_pop(ftask_p task) {
@@ -524,7 +524,7 @@ void f_dict_dump(ftask_p task) { dict_dump(0); }
 /*
 data stack to return stack
 */
-static void d_r(ftask_p task) { r_push(task, (p_code_p *)d_pop(task)); }
+static void d_r(ftask_p task) { r_push(task, (smtok_p *)d_pop(task)); }
 
 static void r_d(ftask_p task) { d_push(task, (long)r_pop(task)); }
 

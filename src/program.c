@@ -10,21 +10,22 @@
 
 #include "program.h"
 #include "logg.h"
-#include "p_code.h"
 #include "variable.h"
 #include <string.h>
+
+#include "smtok.h"
 
 /**
 Loop through the program, calling func for each p-code
 */
-void program_loop(program_p prog, void (*func)(program_p, p_code_p *, ftask_p),
+void program_loop(program_p prog, void (*func)(program_p, smtok_p *, ftask_p),
                   ftask_p task) {
   for (int i = 0; i < prog->npcp_array; i++) {
     func(prog, prog->pcp_array + i, task);
   }
 }
 
-void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
+void program_dump_cb(program_p prog, smtok_p *pcpp, ftask_p task) {
   var_p v;
 
   if (pcpp == task->pcp) {
@@ -37,7 +38,7 @@ void program_dump_cb(program_p prog, p_code_p *pcpp, ftask_p task) {
 	printf("\nPROGRAM COUNTER BEFORE START!\n");
   }
 
-  p_code_p pcp = *pcpp;
+  smtok_p pcp = *pcpp;
   switch (pcp->jtidx) {
   case PCODE_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
@@ -120,24 +121,24 @@ program_p program_create(char *name) {
   return prog;
 }
 
-void program_add_p_code(program_p prog, p_code_p pcp) {
+void program_add_smtok(program_p prog, smtok_p pcp) {
   logg(prog->name, pcp->name);
   prog->npcp_array++;
   if (!prog->pcp_array) {
-    prog->pcp_array = malloc(sizeof(p_code_p) * (prog->npcp_array + 1));
+    prog->pcp_array = malloc(sizeof(smtok_p) * (prog->npcp_array + 1));
   } else {
     prog->pcp_array =
-        realloc(prog->pcp_array, sizeof(p_code_p) * (prog->npcp_array + 1));
+        realloc(prog->pcp_array, sizeof(smtok_p) * (prog->npcp_array + 1));
   }
   prog->pcp_array[prog->npcp_array - 1] = pcp;
   prog->pcp_array[prog->npcp_array] = 0;
 }
 
 void program_add(program_p prog, char *src) {
-  p_code_p pc = p_code_compile_word(src);
+  smtok_p pc = smtok_compile_word(src);
   if (!pc) {
     printf("\nprogram_add(%s) failed \n", src);
     return;
   }
-  program_add_p_code(prog, pc);
+  program_add_smtok(prog, pc);
 }

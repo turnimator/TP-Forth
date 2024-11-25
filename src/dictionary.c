@@ -14,8 +14,8 @@
 #include "dictionary.h"
 
 #include "logg.h"
-#include "p_code.h"
 #include "program.h"
+#include "smtok.h"
 
 dict_p Default_dict;
 
@@ -60,7 +60,7 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
 
   for (int i = 0; i < dep->prog->npcp_array; i++) {
 
-    p_code_p pcp = dep->prog->pcp_array[i];
+    smtok_p pcp = dep->prog->pcp_array[i];
 
     switch (pcp->jtidx) {
     case PCODE_NUMBER:

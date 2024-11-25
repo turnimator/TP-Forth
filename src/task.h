@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct p_code *p_code_p;
+typedef struct smtok *smtok_p;
 typedef struct program program_t, *program_p;
 
 #define D_STACK_SIZE 32
@@ -31,8 +31,8 @@ typedef struct ftask {
   program_p prog_stack[PROG_STACK_SIZE];
   int prog_top;
   program_p program;
-  p_code_p *pcp; // Program counter pointer
-  p_code_p* r_stack[LOOP_STACK_SIZE]; // Poor man's return stack.
+  smtok_p *pcp; // Program counter pointer
+  smtok_p* r_stack[LOOP_STACK_SIZE]; // Poor man's return stack.
   long r_top;
   int loop_upper[LOOP_STACK_SIZE];
   int lu_top;
