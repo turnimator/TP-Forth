@@ -38,7 +38,7 @@ static dict_entry_p de = 0; // Current colon definition
  */
 static void if_create() {
   ct_push(CT_IF, current_IF); // In case of a nested IF, tuck away the old
-  current_IF = smtok_ct_create(PCODE_IF, "IF"); // and enter the new
+  current_IF = smtok_ct_create(SMTOK_IF, "IF"); // and enter the new
   current_IF->val.l = current_PROG->npcp_array;  // Note where the IF is
   program_add_smtok(current_PROG, current_IF);
 }
@@ -47,7 +47,7 @@ static void else_create() {
 
   // current_IF->val.l = current_PROG->npcp_array; // Make IF FALSE point here
   ct_push(CT_IF, current_IF);
-  current_IF = smtok_ct_create(PCODE_ELSE, "ELSE"); //
+  current_IF = smtok_ct_create(SMTOK_ELSE, "ELSE"); //
   current_IF->val.l =
       current_PROG->npcp_array; // Mark where we are in the stream
   program_add_smtok(current_PROG, current_IF);
@@ -66,7 +66,7 @@ static void then_create() {
   long THEN_offset = current_PROG->npcp_array;
   long ELSE_offset = 0;
   long IF_offset = 0;
-  if (current_IF->jtidx == PCODE_ELSE) {
+  if (current_IF->jtidx == SMTOK_ELSE) {
     ELSE_offset = current_IF->val.l;
     current_IF->val.l = THEN_offset - ELSE_offset;
     current_IF = ct_pop(CT_IF);
@@ -77,9 +77,9 @@ static void then_create() {
     IF_offset = current_IF->val.l;
     current_IF->val.l = THEN_offset - IF_offset;
   }
-  smtok_p pcode = smtok_ct_create(PCODE_THEN, "THEN"); //
-  pcode->val.l = current_PROG->npcp_array;
-  program_add_smtok(current_PROG, pcode);
+  smtok_p SMTOK = smtok_ct_create(SMTOK_THEN, "THEN"); //
+  SMTOK->val.l = current_PROG->npcp_array;
+  program_add_smtok(current_PROG, SMTOK);
   current_IF = ct_pop(CT_IF);
 }
 
@@ -89,7 +89,7 @@ static void then_create() {
 static void do_create() {
   logg("DO", "PUSH");
   ct_push(CT_DO, current_DO); // Must be popped on LOOP
-  current_DO = smtok_ct_create(PCODE_LOOP_DO, "DO");
+  current_DO = smtok_ct_create(SMTOK_LOOP_DO, "DO");
   current_DO->val.l = current_PROG->npcp_array + 1;
   program_add_smtok(current_PROG, current_DO);
 }
@@ -97,7 +97,7 @@ static void do_create() {
 static void begin_create() {
   logg("BEGIN", "PUSH");
   ct_push(CT_BEGIN, current_BEGIN); // Must be popped on LOOP
-  current_BEGIN = smtok_ct_create(PCODE_LOOP_BEGIN, "BEGIN");
+  current_BEGIN = smtok_ct_create(SMTOK_LOOP_BEGIN, "BEGIN");
   current_BEGIN->val.l = current_PROG->npcp_array + 1;
   program_add_smtok(current_PROG, current_BEGIN);
 }
@@ -107,7 +107,7 @@ static void loop_create() {
   ijump = current_DO->val.l;
   logg("CREATE", "ENTER");
   smtok_p loop_end_code;
-  loop_end_code = smtok_ct_create(PCODE_LOOP_END, "LOOP");
+  loop_end_code = smtok_ct_create(SMTOK_LOOP_END, "LOOP");
   loop_end_code->val.l = ijump;
   program_add_smtok(current_PROG, loop_end_code);
   current_DO = ct_pop(CT_DO); // POP back the old loop
@@ -119,7 +119,7 @@ static void again_create() {
   ijump = current_BEGIN->val.l;
   logg("BEGIN", "AGAIN");
   smtok_p loop_end_code;
-  loop_end_code = smtok_ct_create(PCODE_LOOP_AGAIN, "AGAIN");
+  loop_end_code = smtok_ct_create(SMTOK_LOOP_AGAIN, "AGAIN");
   loop_end_code->val.l = ijump;
   program_add_smtok(current_PROG, loop_end_code);
   current_BEGIN = ct_pop(CT_BEGIN); // POP back the old loop
@@ -131,7 +131,7 @@ static void until_create() {
   ijump = current_BEGIN->val.l;
   logg("BEGIN", "UNTIL");
   smtok_p loop_end_code;
-  loop_end_code = smtok_ct_create(PCODE_LOOP_UNTIL, "UNTIL");
+  loop_end_code = smtok_ct_create(SMTOK_LOOP_UNTIL, "UNTIL");
   loop_end_code->val.l = ijump;
   program_add_smtok(current_PROG, loop_end_code);
   current_BEGIN = ct_pop(CT_BEGIN); // POP back the old loop
@@ -140,7 +140,7 @@ static void until_create() {
 
 static void exit_create() {
   logg("EXIT", "");
-  smtok_p exit_code = smtok_ct_create(PCODE_EXIT, "EXIT");
+  smtok_p exit_code = smtok_ct_create(SMTOK_EXIT, "EXIT");
   program_add_smtok(current_PROG, exit_code);
 }
 

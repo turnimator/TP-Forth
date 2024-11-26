@@ -40,53 +40,53 @@ void program_dump_cb(program_p prog, smtok_p *pcpp, ftask_p task) {
 
   smtok_p pcp = *pcpp;
   switch (pcp->jtidx) {
-  case PCODE_NUMBER:
+  case SMTOK_NUMBER:
     printf("NUM:%ld ", pcp->val.l);
     break;
-  case PCODE_BUILTIN:
+  case SMTOK_BUILTIN:
     printf("BIN:%s ", pcp->name);
     break;
-  case PCODE_VARIABLE:
+  case SMTOK_VARIABLE:
     v = variable_get(pcp->val.var_idx);
     printf("VAR:(%s=%s) ", pcp->name, vartype_string(v));
     break;
-  case PCODE_DICT_ENTRY:
+  case SMTOK_DICT_ENTRY:
     printf("PROG:%s ", pcp->name);
     break;
-  case PCODE_IF:
+  case SMTOK_IF:
     printf("IF:%ld ", pcp->val.l);
     return;
-  case PCODE_ELSE:
+  case SMTOK_ELSE:
     printf("ELSE:%ld ", pcp->val.l);
     break;
-  case PCODE_THEN:
+  case SMTOK_THEN:
     printf("THEN:%ld ", pcp->val.l);
     return;
-  case PCODE_LOOP_DO:
+  case SMTOK_LOOP_DO:
     printf("DO:%ld ", pcp->val.l);
     break;
-  case PCODE_LOOP_END:
+  case SMTOK_LOOP_END:
     printf("LOOP:%ld ", pcp->val.l);
     break;
-  case PCODE_I:
+  case SMTOK_I:
     printf("I:%s ", pcp->name);
     break;
-  case PCODE_EXIT:
+  case SMTOK_EXIT:
     printf("EXIT:%s ", pcp->name);
     break;
-  case PCODE_LAST:
+  case SMTOK_LAST:
     printf("END ");
     break;
-  case PCODE_DEFER:
+  case SMTOK_DEFER:
     printf("QUOT:");
     break;
-  case PCODE_EXEC:
+  case SMTOK_EXEC:
     printf("EXEC:");
     break;
-  case PCODE_SPAWN:
+  case SMTOK_SPAWN:
     printf("SPWN:");
     break;
-  case PCODE_STRING:
+  case SMTOK_STRING:
     printf("STR:%s", pcp->val.s);
     break;
   default:

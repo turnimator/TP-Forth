@@ -63,57 +63,57 @@ static int cb_dict_dump(dict_entry_p dep, void *p) {
     smtok_p pcp = dep->prog->pcp_array[i];
 
     switch (pcp->jtidx) {
-    case PCODE_NUMBER:
+    case SMTOK_NUMBER:
       printf("NUM:%ld ", pcp->val.l);
       break;
-    case PCODE_BUILTIN:
+    case SMTOK_BUILTIN:
       printf("BIN:%s ", pcp->name);
       break;
-    case PCODE_VARIABLE:
+    case SMTOK_VARIABLE:
       printf("VAR:%s=%ld ", pcp->name, pcp->val.l);
       break;
-    case PCODE_DICT_ENTRY:
+    case SMTOK_DICT_ENTRY:
       printf("DEF:%s ", pcp->name);
       // program_dump(pcp->val.prog, p);
       break;
-    case PCODE_LOOP_DO:
+    case SMTOK_LOOP_DO:
       printf("DO:%s ", pcp->name);
       break;
-    case PCODE_LOOP_END:
+    case SMTOK_LOOP_END:
       printf("LOOP:%s ", pcp->name);
       break;
-    case PCODE_IF:
+    case SMTOK_IF:
       printf("IF:%s ", pcp->name);
       break;
-    case PCODE_ERROR:
+    case SMTOK_ERROR:
       printf("ERR:%s ", pcp->name);
       break;
-    case PCODE_I:
+    case SMTOK_I:
       printf("I:%s ", pcp->name);
       break;
-    case PCODE_DEFER:
+    case SMTOK_DEFER:
       printf("' %s", pcp->name);
       break;
-    case PCODE_ELSE:
+    case SMTOK_ELSE:
       printf("ELSE:%s ", pcp->name);
       break;
-    case PCODE_EXEC:
+    case SMTOK_EXEC:
       printf("EXEC:%s ", pcp->name);
       break;
-    case PCODE_EXIT:
+    case SMTOK_EXIT:
       printf("EXIT:%s ", pcp->name);
       break;
-    case PCODE_SPAWN:
+    case SMTOK_SPAWN:
       printf("SPWN:%s ", pcp->name);
       break;
-    case PCODE_STRING:
+    case SMTOK_STRING:
       printf("STR:%s ", pcp->val.s);
       break;
-    case PCODE_THEN:
+    case SMTOK_THEN:
       printf("THEN:%s ", pcp->name);
       break;
     default:
-      printf("PCODE%d? ", pcp->jtidx);
+      printf("SMTOK%d? ", pcp->jtidx);
       break;
     }
   }

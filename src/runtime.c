@@ -239,32 +239,32 @@ static void ef_until(program_p prog, ftask_p task) {
   } else {
     task->pcp = r_tos(task);
   }
-  ll_tos(task)++; // Loppvar
+  ll_tos(task)++; // Loopvar
 }
 
 /*
 This is kind of hairy, just make sure that the place in the array farray[]
-corresponds to the PCODE type. from smtok.h:
-  PCODE_ERROR = 0,
-  PCODE_BUILTIN = 1,
-  PCODE_NUMBER = 2,
-  PCODE_VARIABLE = 3,
-  PCODE_DICT_ENTRY = 4,
-  PCODE_IF = 5,
-  PCODE_LOOP_DO = 6,
-  PCODE_LOOP_END = 7,
-  PCODE_I = 8,
-  PCODE_ELSE = 9,
-  PCODE_THEN =10,
-  PCODE_EXIT = 11,
-  PCODE_DEFER = 12,
-  PCODE_EXEC = 13,
-  PCODE_SPAWN =14,
-  PCODE_STRING = 15,
-  PCODE_LOOP_BEGIN = 16,
-  PCODE_LOOP_AGAIN = 17,
-  PCODE_LOOP_UNTIL = 18,
-  PCODE_LAST
+corresponds to the SMTOK type. from smtok.h:
+  SMTOK_ERROR = 0,
+  SMTOK_BUILTIN = 1,
+  SMTOK_NUMBER = 2,
+  SMTOK_VARIABLE = 3,
+  SMTOK_DICT_ENTRY = 4,
+  SMTOK_IF = 5,
+  SMTOK_LOOP_DO = 6,
+  SMTOK_LOOP_END = 7,
+  SMTOK_I = 8,
+  SMTOK_ELSE = 9,
+  SMTOK_THEN =10,
+  SMTOK_EXIT = 11,
+  SMTOK_DEFER = 12,
+  SMTOK_EXEC = 13,
+  SMTOK_SPAWN =14,
+  SMTOK_STRING = 15,
+  SMTOK_LOOP_BEGIN = 16,
+  SMTOK_LOOP_AGAIN = 17,
+  SMTOK_LOOP_UNTIL = 18,
+  SMTOK_LAST
 */
 static cbp_exec_func smtok_jump_table[] = {
     ef_error,  ef_primitive, cb_ef_number, ef_variable, ef_dict_entry,
@@ -273,12 +273,12 @@ static cbp_exec_func smtok_jump_table[] = {
     ef_string, ef_begin,     ef_again,     ef_until,    ef_last_code};
 
 char *tstr(jumptable_idx_t t) {
-  static char *jts_sarray[] = {"PCODE_ERROR", "PCODE_BUILTIN", "PCODE_NUMBER",
+  static char *jts_sarray[] = {"SMTOK_ERROR", "SMTOK_BUILTIN", "SMTOK_NUMBER",
                                "VARIABLE",    "DICT_ENTRY",    "IF",
                                "DO",          "LOOP",          "I",
                                "ELSE",        "THEN",          "EXIT",
                                "QUOT",        "EXEC",          "SPWN",
-                               "STR",         "PCODE_LAST"};
+                               "STR",         "SMTOK_LAST"};
   return jts_sarray[t];
 }
 
