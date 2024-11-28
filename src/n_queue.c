@@ -28,8 +28,8 @@ nq_p nq_create(char *name, int len) {
     return 0;
   }
   char *port_part = strtok(0, "/");
-  printf("Creating queue length %d with address (%s) and port %s\n", len,
-         address_part, port_part);
+  //  printf("Creating queue length %d with address (%s) and port %s\n", len,
+  // address_part, port_part);
   nq_p q = malloc(sizeof(nq_t));
 
   q->bufsz = len;
