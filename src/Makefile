@@ -1,41 +1,16 @@
-tpforth: tpforth.o variable.o task.o runtime.o program.o p_code.o parser.o logg.o dictionary.o custom.o compiler.o builtins.o
-	cc $^ -o $@
+# Thanks, Adrian Blake!
+# Fixed, changed the make file. Thus:
+ARCH ?= 64
+CC := clang
+CFLAGS = -O3 -m$(ARCH)
+srcfiles := $(shell find . -name ".c")
+incfiles := $(shell find . -name ".h")
 
-builtins.o : builtins.c
-	cc -c $< -o $@
+tpforth: ( s r c f i l e s ) (incfiles)
+( C C ) (CFLAGS) ( s r c f i l e s ) − o @ -lm
 
-compiler.o : compiler.c
-	cc -c $< -o $@
+run: tpforth
+./tpforth
 
-custom.o : custom.c
-	cc -c $< -o $@
-
-dictionary.o : dictionary.c
-	cc -c $< -o $@
-
-logg.o : logg.c
-	cc -c $< -o $@
-
-parser.o : parser.c
-	cc -c $< -o $@
-
-p_code.o : p_code.c
-	cc -c $< -o $@
-
-program.o : program.c
-	cc -c $< -o $@
-
-runtime.o : runtime.c
-	cc -c $< -o $@
-
-task.o : task.c
-	cc -c $< -o $@
-
-tpforth.o : tpforth.c
-	cc -c $< -o $@
-
-variable.o : variable.c
-	cc -c $< -o $@
-
-clean :
-	rm tpforth *.o
+clean:
+rm -f ./tpforth
