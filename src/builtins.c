@@ -687,6 +687,7 @@ void builtin_build_db() {
   builtin_add(">r", d_r);
   builtin_add("r>", r_d);
   builtin_add("'", d_dummy);
+  builtin_add("TYPE", s_dot);
   builtin_add("S.", s_dot);
   builtin_add("S=", s_cmp);
   builtin_add("S>L", s_to_long);
